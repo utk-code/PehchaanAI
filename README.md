@@ -187,14 +187,6 @@ This system is designed to **assist** investigators, not replace them:
 
 ---
 
-## 📞 Contact
-
-**Project Manager:** [Name/Email]  
-**Tech Lead:** [Name/Email]  
-**Support:** [Email]
-
----
-
 ## 🙏 Acknowledgments
 
 - InsightFace team for ArcFace model
