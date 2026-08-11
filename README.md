@@ -64,7 +64,34 @@ missing-child-ai/
 
 Access frontend at http://localhost:3000 and API docs at http://localhost:8000/docs
 
-Docker (recommended for parity): docker-compose up -d
+Docker (recommended for parity):
+
+# Using Docker (recommended)
+
+A docker-compose configuration is provided for local development and parity with CI.
+
+Start all services in detached mode:
+
+```bash
+docker-compose up -d --build
+```
+
+Services:
+- frontend: http://localhost:3000 (served by nginx)
+- backend: http://localhost:8000
+- postgres: 5432 (for local testing; credentials are in docker-compose.yml)
+
+Stop and remove containers:
+
+```bash
+docker-compose down
+```
+
+Notes:
+- The backend Dockerfile expects backend/requirements.txt and a FastAPI app entrypoint at backend/main.py (ASGI app `app`).
+- The frontend Dockerfile builds the site from frontend/ and serves it with nginx.
+- Adjust compose services and environment variables for production deployments.
+
 
 ---
 
