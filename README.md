@@ -1,9 +1,9 @@
-# Missing Child Identification AI System
+# Missing Child Identification AI System (Project Ace)
 
-A web-based AI system that helps law enforcement investigators find potential matches for missing children across large age gaps using facial recognition, age progression, and AI-powered analysis.
+A web-based AI system to help investigators find potential matches for missing children using facial recognition, age progression, and AI-powered analysis.
 
-**Version:** 1.0.0 (MVP)  
-**Status:** Planning Phase  
+**Version:** 1.0.0 (MVP)
+**Status:** Planning Phase
 **Target Launch:** End of Week 8
 
 ---
@@ -13,196 +13,138 @@ A web-based AI system that helps law enforcement investigators find potential ma
 This system enables investigators to:
 1. Upload a missing child's photo
 2. Search a database for visually similar faces
-3. View age-progressed images
+3. View age-progressed and enhanced images
 4. Review AI-generated investigation reports
-5. Export results for further investigation
+5. Export and share results with secure audit trails
 
-**⚠️ Important:** This system provides suggestions only. All matches require verification through DNA testing or other biometric methods.
+Important: system outputs are investigative leads only. All matches require human review and formal verification (DNA or other biometrics).
 
 ---
 
 ## 🛠️ Tech Stack
 
-**Frontend:**
-- React 18+ with TypeScript
-- Tailwind CSS
-- React Router
-- React Query (TanStack Query)
-- Zustand (state management)
+Frontend: React 18+ (TypeScript), Tailwind CSS, React Router, TanStack Query
 
-**Backend:**
-- Python 3.11+ with FastAPI
-- PostgreSQL 15+ with pgvector extension
-- SQLAlchemy ORM
-- InsightFace (ArcFace face recognition)
-- OpenCV (face detection)
-- OpenAI GPT-4 (report generation)
+Backend: Python 3.11+ (FastAPI), PostgreSQL 15+ (pgvector), SQLAlchemy, InsightFace, OpenCV, OpenAI GPT-4
 
-**Infrastructure:**
-- Docker & Docker Compose
-- Nginx (reverse proxy)
-- JWT authentication
+Infrastructure: Docker Compose, Nginx, JWT auth, optional Kubernetes deployment
 
 ---
 
-## 📁 Project Structure
+## 📁 Project Structure (high level)
 
 ```
 missing-child-ai/
-├── frontend/              # React + TypeScript frontend
-├── backend/               # FastAPI backend
-├── models/                # Pretrained models
-├── data/                  # Test data
-├── tests/                 # Tests
-├── docs/                  # Planning documents
+├── frontend/         # React + TypeScript
+├── backend/          # FastAPI backend
+├── models/           # Pretrained model artifacts
+├── data/             # Sample/test images and datasets
+├── tests/            # Unit & integration tests
+├── docs/             # Design docs, PRD, ADRs
 ├── docker-compose.yml
 └── README.md
 ```
 
 ---
 
-## 📚 Documentation
+## 🚀 Quick Start (local without Docker)
 
-All planning documents are in the root directory:
+1. Install Python 3.11+ and Node.js 18+.
+2. Backend:
+   - python -m venv .venv
+   - .venv\Scripts\Activate.ps1  # PowerShell
+   - pip install -r backend/requirements.txt
+   - cp backend/.env.example backend/.env
+3. Frontend:
+   - cd frontend
+   - npm install
+   - npm run dev
+4. Run backend locally:
+   - uvicorn backend.main:app --reload --port 8000
 
-- **PRD.md** - Product Requirements Document
-- **Architecture.md** - System architecture
-- **Rules.md** - Development rules and standards
-- **Design.md** - UI/UX design specifications
-- **Phases.md** - Development phases
-- **API.md** - API documentation
-- **DatabaseSchema.md** - Database schema
-- **Evaluation.md** - Testing plan
-- **Experiments.md** - Research findings
-- **ADR.md** - Architecture Decision Records
-- And more...
+Access frontend at http://localhost:3000 and API docs at http://localhost:8000/docs
 
----
-
-## 🚀 Quick Start
-
-### Prerequisites
-- Docker Desktop
-- Git
-- OpenAI API key
-
-### Setup
-
-```bash
-# Clone repository
-git clone <repository-url>
-cd missing-child-ai
-
-# Create environment files
-cp backend/.env.example backend/.env
-cp frontend/.env.example frontend/.env
-
-# Add your API keys to backend/.env
-
-# Start all services
-docker-compose up -d
-
-# Access the application
-# Frontend: http://localhost:3000
-# Backend API: http://localhost:8000
-# API Docs: http://localhost:8000/docs
-```
+Docker (recommended for parity): docker-compose up -d
 
 ---
 
 ## 🧪 Running Tests
 
-```bash
-# Backend tests
-docker-compose exec backend pytest tests/ -v --cov
+Backend (local):
 
-# Frontend tests
-docker-compose exec frontend npm test -- --coverage
-```
+python -m pytest tests/ -v --maxfail=1
 
----
+Frontend:
 
-## 📊 Performance Targets
+cd frontend && npm test -- --watchAll=false
 
-- Face detection: < 2 seconds
-- Vector search: < 5 seconds (10K database)
-- Page load: < 3 seconds
-- Concurrent users: 20 simultaneous
-- Face detection accuracy: > 95%
+CI: workflows run pytest and frontend tests inside containers (see .github/workflows)
 
 ---
 
-## 🔐 Security
+## 📦 Releases & Versioning
 
-- JWT-based authentication (8-hour expiration)
-- bcrypt password hashing (cost factor 12)
-- HTTPS in production
-- File upload validation
-- Rate limiting (100 req/min per IP)
-- Audit logging
+Follow semantic versioning (MAJOR.MINOR.PATCH). Use changelogs and release notes in the releases page.
 
 ---
 
-## 🔑 Key Features
+## 🤝 Contributing
 
-### ✅ MVP Features
-- User authentication
-- Case management
-- Photo upload with face detection
-- Vector similarity search
-- Multi-factor ranking
-- Age progression images
-- AI-generated reports
-- Results dashboard
-- PDF export
+Contributions are welcome. Please follow these steps:
 
-### 🚧 Post-MVP Features
-- Mobile app
-- Advanced photo enhancement
-- External database integration
-- Collaborative case sharing
-- Advanced analytics
+1. Open an issue describing the change or feature.
+2. Create a branch: feature/short-description or fix/short-description
+3. Add tests for new behavior.
+4. Open a pull request against main with a clear description and testing notes.
+
+Before merging: ensure CI passes, include changelog entry if applicable, and get at least one approving review from the core team.
+
+Code style: use Black (Python) and Prettier (JS/TS). Run linters before committing.
 
 ---
 
-## 📈 Development Phases
+## 📝 Code of Conduct
 
-1. **Phase 1 (Weeks 1-2):** Foundation
-2. **Phase 2 (Weeks 3-5):** Core Features
-3. **Phase 3 (Weeks 6-7):** Advanced Features
-4. **Phase 4 (Week 8):** Testing & Deployment
+Be respectful and professional. Report violations to the maintainers.
 
 ---
 
-## ⚠️ Ethical Guidelines
+## ⚖️ License
 
-This system is designed to **assist** investigators, not replace them:
-
-- Never declare definitive matches
-- Always recommend DNA verification
-- Include disclaimers on all results
-- Respect privacy and data protection
-- Maintain audit trails
-- Handle sensitive data securely
+This repository is released under the MIT License. See LICENSE.md for details.
 
 ---
 
-## 📞 Contact
+## 🔐 Security & Privacy
 
-**Project Manager:** [Name/Email]  
-**Tech Lead:** [Name/Email]  
-**Support:** [Email]
+- Treat all uploaded images as sensitive data.
+- Store only the minimum required PII and use encryption at rest and in transit.
+- Log access and changes with an audit trail.
+- Provide opt-out/deletion procedures for data subjects where required by law.
+
+---
+
+## 🛠️ Operational Notes
+
+- Default local ports: frontend 3000, backend 8000
+- Add service health checks and readiness probes in deployment manifests
+- Backups and data retention policies are mandatory for production
+
+---
+
+## 📞 Contact & Maintainers
+
+Project Manager: [Name/Email]
+Tech Lead: [Name/Email]
+Security Contact: security@example.org
 
 ---
 
 ## 🙏 Acknowledgments
 
-- InsightFace team for ArcFace model
-- OpenAI for GPT-4
-- pgvector contributors
-- All law enforcement agencies supporting this initiative
+Thanks to InsightFace, OpenAI, pgvector contributors, and research partners.
 
 ---
 
-**Last Updated:** August 10, 2026  
+**Last Updated:** August 11, 2026
 **Document Owner:** Development Team
