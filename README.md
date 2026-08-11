@@ -124,22 +124,6 @@ This repository is released under the MIT License. See LICENSE.md for details.
 
 ---
 
-## 🛠️ Operational Notes
-
-- Default local ports: frontend 3000, backend 8000
-- Add service health checks and readiness probes in deployment manifests
-- Backups and data retention policies are mandatory for production
-
----
-
-## 📞 Contact & Maintainers
-
-Project Manager: [Name/Email]
-Tech Lead: [Name/Email]
-Security Contact: security@example.org
-
----
-
 ## 🙏 Acknowledgments
 
 Thanks to InsightFace, OpenAI, pgvector contributors, and research partners.
