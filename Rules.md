@@ -222,6 +222,7 @@ POST   /api/cases/{id}/search  # Trigger search
 - **System Architecture:** `Architecture.md`, `API.md`, and `DatabaseSchema.md` are primary technical references. Avoid repeating schema/architecture details in planning docs.
 
 ### 11.2 Context & File Maintenance
+- **`TODO.md` Update Cadence:** Update `TODO.md` (checking off completed items) and `PROGRESS.md` at the end of every completed major feature or at the start of a new "Day" phase. This ensures accurate tracking while minimizing constant file-write overhead.
 - **`TODO.md` Budgeting:** Keep `TODO.md` under ~15 KB. Archive completed task blocks to `TODO_ARCHIVE.md` to prevent agent context bloat.
 - **Selective Loading:** When invoking sub-agents, load only the specific files required for the sub-task (e.g. `Rules.md` + `Tools.md` + relevant domain doc).
 - **No Desynchronization:** If an agent updates a feature specification, verify and update the corresponding entry in `API.md` or `DatabaseSchema.md` to maintain consistency.

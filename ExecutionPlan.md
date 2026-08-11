@@ -1,132 +1,50 @@
 # Execution Plan
 ## Missing Child Identification AI System
 
-**Version:** 1.0  
-**Date:** August 10, 2026
+**Version:** 2.0  
+**Date:** August 11, 2026  
 
 ---
 
 ## 1. Pre-Development Checklist
 
-- [ ] Secure OpenAI or Gemini API access
-- [ ] Set up development machines
-- [ ] Install Docker, Node.js, Python
-- [ ] Create Git repository
-- [ ] Obtain sample test images
+- [x] Secure OpenAI or Gemini API access
+- [x] Set up development machines
+- [x] Install Docker, Node.js, Python
+- [x] Create Git repository
+- [x] Obtain sample test images
 
 ---
 
-## 2. Week-by-Week Plan
+## 2. 7-Day Agent-Driven Sprint
 
-### Week 1: Foundation - Setup
-**Goals:** Running dev environment, database, basic stack
+### Day 1: Setup & Environment
+**Goals:** Running dev environment
+**Actions:** Initialize project, Docker Compose, Git. (Complete)
 
-**Actions:**
-- Initialize project directories
-- Set up Docker Compose
-- Create PostgreSQL with pgvector
-- Initialize FastAPI and React
-- Test full stack communication
+### Day 2: Authentication & Base Backend
+**Goals:** Secure login system and database models
+**Actions:** FastAPI setup, PostgreSQL setup, JWT auth, basic React initialization.
 
-**Deliverable:** Dev environment working
+### Day 3: Face Detection & Case Management
+**Goals:** Face processing pipeline and case CRUD
+**Actions:** InsightFace integration, image upload, embedding generation, case models.
 
----
+### Day 4: Vector Search & Ranking
+**Goals:** Core matching engine
+**Actions:** pgvector similarity search, test candidate generation, multi-factor ranking.
 
-### Week 2: Authentication
-**Goals:** Secure login system
-
-**Actions:**
-- Implement JWT authentication
-- Create user registration/login endpoints
-- Build Login and Register pages
-- Implement protected routes
-- Test end-to-end auth flow
-
-**Deliverable:** Working auth system
-
----
-
-### Week 3: Face Detection
-**Goals:** Face processing pipeline
-
-**Actions:**
-- Integrate OpenCV and InsightFace
-- Implement face detection and alignment
-- Create photo upload endpoint
-- Build drag-drop upload UI
-- Test with various image qualities
-
-**Deliverable:** Face detection working
-
----
-
-### Week 4: Case Management & Search
-**Goals:** Case CRUD and vector search
-
-**Actions:**
-- Create Case model and endpoints
-- Implement pgvector similarity search
-- Populate test candidate database (100+)
-- Build case creation UI
-- Display search results
-
-**Deliverable:** Working search
-
----
-
-### Week 5: Dashboard
+### Day 5: Frontend Dashboard
 **Goals:** Professional results display
+**Actions:** Case creation UI, dashboard UI, candidate display, score visualization.
 
-**Actions:**
-- Build results dashboard page
-- Create candidate card components
-- Implement score visualization
-- Add PDF export
-- Polish UI/UX
+### Day 6: Age Progression & AI Reports
+**Goals:** Advanced AI features
+**Actions:** External age progression API integration, LLM-generated investigation reports.
 
-**Deliverable:** Complete dashboard
-
----
-
-### Week 6: Age Progression & Ranking
-**Goals:** Age-progressed images and ranking
-
-**Actions:**
-- Integrate age progression API
-- Generate images at +5, +10, +15 years
-- Implement multi-factor ranking
-- Display progressed images
-- Show score breakdown
-
-**Deliverable:** Age progression working
-
----
-
-### Week 7: AI Reports
-**Goals:** LLM-generated investigation reports
-
-**Actions:**
-- Integrate OpenAI/Gemini API
-- Create safe prompt templates
-- Implement report generation
-- Display reports in dashboard
-- Test safety constraints
-
-**Deliverable:** AI reports generating
-
----
-
-### Week 8: Testing & Deployment
+### Day 7: Testing & Deployment
 **Goals:** Production launch
-
-**Actions:**
-- Integration testing (Days 1-2)
-- Bug fixes and optimization (Days 3-4)
-- User acceptance testing (Day 5)
-- Production deployment (Days 6-7)
-- Monitor and stabilize
-
-**Deliverable:** Live production system
+**Actions:** E2E testing, bug fixes, UI polish, production Docker builds.
 
 ---
 
@@ -233,4 +151,4 @@ curl https://yourdomain.com/api/health
 ---
 
 **Document Owner:** Development Team  
-**Last Updated:** August 10, 2026
+**Last Updated:** August 11, 2026
