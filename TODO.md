@@ -1,7 +1,7 @@
 # TODO List for AI Coding Agent
 ## Missing Child Identification AI System
 
-**Project:** Project Ace - Missing Child Identification AI  
+**Project:** PehchaanAI - Missing Child Identification AI
 **Status:** In Progress  
 **Current Date:** 2026-08-11  
 **Target Launch:** 2026-08-18 (7 days from start)
@@ -13,7 +13,8 @@
 - [x] Planning phase complete
 - [x] All documentation created
 - [x] Phase 1, Day 1 - Environment Setup complete
-- [ ] **NEXT ACTION:** Begin Day 2: Authentication & Basic Backend
+- [x] Phase 1, Day 2 - Authentication & Basic Backend complete
+- [ ] **NEXT ACTION:** Begin Day 3: Face Detection Pipeline & Case Management
 
 ---
 
@@ -27,13 +28,13 @@
 - [x] Create README with setup instructions
 - [x] Test Docker Compose config
 
-### Day 2: Authentication & Basic Backend ⏳ NEXT
-- [ ] Initialize FastAPI project in `backend/` directory
-- [ ] Create `requirements.txt` with dependencies (FastAPI, SQLAlchemy, Passlib, etc.)
-- [ ] Add PostgreSQL + pgvector to docker-compose.yml
-- [ ] Create `backend/database/models.py` (Users table)
-- [ ] Implement JWT authentication (login/register endpoints)
-- [ ] Initialize React + TypeScript project with Vite in `frontend/`
+### Day 2: Authentication & Basic Backend
+- [x] Initialize FastAPI project in `backend/` directory
+- [x] Create `requirements.txt` with dependencies (FastAPI, SQLAlchemy, JWT, password hashing, etc.)
+- [x] Add PostgreSQL + pgvector to docker-compose.yml
+- [x] Create `backend/database/models.py` (Users table)
+- [x] Implement JWT authentication (login/register endpoints)
+- [x] Initialize React + TypeScript project with Vite in `frontend/`
 
 ### Day 3: Face Detection Pipeline & Case Management
 - [ ] Create Case model in SQLAlchemy (with `face_embedding` VECTOR)
@@ -98,12 +99,13 @@
 
 ## 🎯 Current Action (Start Here!)
 
-**NEXT TASK:** Day 2: Authentication & Basic Backend
+**NEXT TASK:** Day 3: Face Detection Pipeline & Case Management
 
 **Steps:**
-1. Create `backend/requirements.txt`
-2. Create basic FastAPI setup (`main.py`)
-3. Set up Database models (`models.py`)
-4. Create Auth routes
+1. Create Case model in SQLAlchemy
+2. Integrate OpenCV and InsightFace
+3. Implement face detection and alignment pipeline
+4. Create photo upload endpoint returning embeddings
+5. Create Case creation endpoints
 
 **Good luck! 🚀 Let's build something that helps bring missing children home in a week!**

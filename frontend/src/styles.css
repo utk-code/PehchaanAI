@@ -1,0 +1,207 @@
+:root {
+  color: #172026;
+  background: #f4f6f7;
+  font-family:
+    Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+    sans-serif;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  min-height: 100vh;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.app-shell {
+  display: grid;
+  grid-template-columns: 280px 1fr;
+  min-height: 100vh;
+}
+
+.sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 36px;
+  background: #101820;
+  color: #f8fafc;
+  padding: 32px 24px;
+}
+
+.sidebar h1,
+.topbar h2,
+.panel h3,
+.workflow-card h3 {
+  margin: 0;
+  letter-spacing: 0;
+}
+
+.sidebar h1 {
+  margin-top: 8px;
+  font-size: 26px;
+  line-height: 1.15;
+}
+
+.sidebar nav {
+  display: grid;
+  gap: 8px;
+}
+
+.sidebar a {
+  border-radius: 8px;
+  color: #cbd5e1;
+  padding: 12px 14px;
+}
+
+.sidebar a[aria-current='page'],
+.sidebar a:hover {
+  background: #22303a;
+  color: #ffffff;
+}
+
+.content {
+  display: grid;
+  align-content: start;
+  gap: 24px;
+  padding: 32px;
+}
+
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.topbar h2 {
+  color: #1f2933;
+  font-size: 28px;
+  line-height: 1.2;
+}
+
+.eyebrow {
+  color: #5f6f7a;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0;
+  margin: 0;
+  text-transform: uppercase;
+}
+
+.sidebar .eyebrow {
+  color: #8fd0c7;
+}
+
+.status-pill {
+  border: 1px solid #b9d9d3;
+  border-radius: 999px;
+  color: #11665b;
+  font-weight: 700;
+  padding: 8px 12px;
+  white-space: nowrap;
+}
+
+.workflow-grid {
+  display: grid;
+  gap: 16px;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.workflow-card,
+.panel {
+  background: #ffffff;
+  border: 1px solid #dce3e6;
+  border-radius: 8px;
+  box-shadow: 0 1px 2px rgb(16 24 32 / 6%);
+}
+
+.workflow-card {
+  display: flex;
+  gap: 12px;
+  min-height: 104px;
+  padding: 18px;
+}
+
+.workflow-card svg {
+  color: #146c63;
+  flex: 0 0 auto;
+}
+
+.workflow-card h3 {
+  font-size: 16px;
+}
+
+.workflow-card p,
+.panel p {
+  color: #53636d;
+  line-height: 1.55;
+  margin: 6px 0 0;
+}
+
+.panel {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  padding: 24px;
+}
+
+.panel code {
+  background: #eef4f3;
+  border: 1px solid #cfe0dc;
+  border-radius: 8px;
+  color: #194b45;
+  font-weight: 700;
+  padding: 10px 12px;
+  white-space: nowrap;
+}
+
+@media (max-width: 860px) {
+  .app-shell {
+    grid-template-columns: 1fr;
+  }
+
+  .sidebar {
+    gap: 18px;
+  }
+
+  .sidebar nav {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .sidebar a {
+    text-align: center;
+  }
+
+  .workflow-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 560px) {
+  .content,
+  .sidebar {
+    padding: 22px;
+  }
+
+  .topbar,
+  .panel {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .sidebar nav,
+  .workflow-grid {
+    grid-template-columns: 1fr;
+  }
+}

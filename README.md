@@ -1,4 +1,4 @@
-# Missing Child Identification AI System (Project Ace)
+# PehchaanAI: Missing Child Identification AI System
 
 A web-based AI system to help investigators find potential matches for missing children using facial recognition, age progression, and AI-powered analysis.
 
@@ -49,7 +49,7 @@ missing-child-ai/
 
 ## 🚀 Quick Start (local without Docker)
 
-1. Install Python 3.11+ and Node.js 18+.
+1. Install Python 3.11+ and Node.js 24+.
 2. Backend:
    - python -m venv .venv
    - .venv\Scripts\Activate.ps1  # PowerShell
@@ -62,7 +62,14 @@ missing-child-ai/
 4. Run backend locally:
    - uvicorn backend.main:app --reload --port 8000
 
-Access frontend at http://localhost:3000 and API docs at http://localhost:8000/docs
+Access the Vite dev frontend at http://localhost:5173 and API docs at http://localhost:8000/docs.
+The Docker-served frontend is available at http://localhost:3000.
+
+Current backend endpoints:
+- `GET /health`
+- `POST /auth/register`
+- `POST /auth/login`
+- `GET /auth/me`
 
 Docker (recommended for parity):
 

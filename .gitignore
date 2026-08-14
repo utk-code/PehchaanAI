@@ -8,6 +8,7 @@ __pycache__/
 # Build
 dist/
 build/
+*.tsbuildinfo
 
 # Env
 .env
