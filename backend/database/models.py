@@ -75,9 +75,41 @@ class Case(Base):
 
     investigator: Mapped["User"] = relationship(back_populates="cases")
 
+    __table_args__ = (Index("idx_cases_investigator", "investigator_id"),)
+
+
+class Candidate(Base):
+    """Reference pool of known/recovered children used as match candidates.
+
+    Candidates hold the same biometric vector representation as cases so that
+    an uploaded missing-child photo can be matched against the pool.
+    """
+
+    __tablename__ = "candidates"
+
+    id: Mapped[str] = mapped_column(
+        PGUUID(as_uuid=False),
+        primary_key=True,
+        default=lambda: str(uuid.uuid4()),
+    )
+    name_encrypted: Mapped[str] = mapped_column(Text, nullable=False)
+    age_at_record: Mapped[int] = mapped_column(nullable=False)
+    record_date: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), nullable=False
+    )
+    location: Mapped[str] = mapped_column(String(255), nullable=False)
+    source: Mapped[str] = mapped_column(String(50), default="database", nullable=False)
+    photo_path: Mapped[str] = mapped_column(String(500), nullable=False)
+    face_embedding: Mapped[list[float]] = mapped_column(Vector(512), nullable=False)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), default=utc_now
+    )
+
     __table_args__ = (
-        Index("idx_cases_investigator", "investigator_id"),
-        # IVFFlat index for vector similarity search (created via migration)
-        # CREATE INDEX idx_cases_embedding ON cases USING ivfflat
-        # (face_embedding vector_cosine_ops) WITH (lists = 100);
+        Index(
+            "idx_candidates_embedding",
+            "face_embedding",
+            postgresql_using="ivfflat",
+            postgresql_ops={"face_embedding": "vector_cosine_ops"},
+        ),
     )

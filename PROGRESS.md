@@ -60,3 +60,34 @@ Verified:
 
 Next:
 - Day 4: Vector Search & Multi-Factor Ranking
+
+---
+
+## 2026-08-14 - Day 4: Vector Search & Multi-Factor Ranking
+
+Completed:
+- Created Candidate SQLAlchemy model with VECTOR(512) face_embedding column
+- Added IVFFlat index on candidates.face_embedding for fast cosine similarity search
+- Created multi-factor ranking module (`backend/search/ranking.py`):
+  - Cosine similarity for face embeddings (primary signal, 55% weight)
+  - Age proximity scoring (20% weight)
+  - Geographic location matching with region overlap and Levenshtein fallback (15% weight)
+  - Temporal proximity scoring (10% weight)
+  - Configurable weights with validation
+- Created search schemas (`backend/search/schemas.py`) for request/response
+- Implemented search service (`backend/search/service.py`) using pgvector <=> operator
+- Created search API endpoints (`backend/search/routes.py`):
+  - `POST /search` - Search with explicit embedding + context
+  - `GET /search/case/{case_id}` - Search using stored case embedding
+- Created seeding script (`scripts/seed_candidates.py`) for synthetic test data
+- Added 16 new unit tests (`tests/test_search.py`) covering ranking, schemas, endpoints
+- All 32 tests pass (5 auth + 11 case + 16 search tests)
+- Code passes black formatting and flake8 linting
+
+Verified:
+- `python -m pytest tests -v` (32 passed)
+- `python -m black --check backend tests`
+- `python -m flake8 backend tests`
+
+Next:
+- Day 5: Frontend Dashboard & Upload UI
