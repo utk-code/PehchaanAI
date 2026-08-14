@@ -14,7 +14,8 @@
 - [x] All documentation created
 - [x] Phase 1, Day 1 - Environment Setup complete
 - [x] Phase 1, Day 2 - Authentication & Basic Backend complete
-- [ ] **NEXT ACTION:** Begin Day 3: Face Detection Pipeline & Case Management
+- [x] **NEXT ACTION:** Begin Day 3: Face Detection Pipeline & Case Management
+- [ ] **NEXT ACTION:** Begin Day 4: Vector Search & Multi-Factor Ranking
 
 ---
 
@@ -37,11 +38,11 @@
 - [x] Initialize React + TypeScript project with Vite in `frontend/`
 
 ### Day 3: Face Detection Pipeline & Case Management
-- [ ] Create Case model in SQLAlchemy (with `face_embedding` VECTOR)
-- [ ] Integrate OpenCV & InsightFace in backend
-- [ ] Implement face detection and alignment pipeline
-- [ ] Create photo upload endpoint returning 512-d embeddings
-- [ ] Create Case creation endpoints
+- [x] Create Case model in SQLAlchemy (with `face_embedding` VECTOR)
+- [x] Integrate OpenCV & InsightFace in backend
+- [x] Implement face detection and alignment pipeline
+- [x] Create photo upload endpoint returning 512-d embeddings
+- [x] Create Case creation endpoints
 
 ### Day 4: Vector Search & Multi-Factor Ranking
 - [ ] Populate database with test candidates and embeddings

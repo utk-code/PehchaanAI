@@ -5,6 +5,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from backend.auth.routes import router as auth_router
+from backend.cases.routes import router as cases_router
 from backend.config import get_settings
 from backend.database.models import Base
 from backend.database.session import engine
@@ -34,6 +35,7 @@ app.add_middleware(
 )
 
 app.include_router(auth_router)
+app.include_router(cases_router)
 
 
 @app.get("/health", tags=["system"])
