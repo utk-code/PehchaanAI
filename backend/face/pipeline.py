@@ -89,11 +89,29 @@ class FacePipeline:
                 f"Face detection confidence {face.det_score:.2f} below threshold"
             )
 
-        aligned = self._detector.get_aligned_face(image)
-        embedding = self._embedder.embed(aligned)
+        # Aligned crop is computed best-effort (used only for previews).
+        try:
+            aligned = self._detector.get_aligned_face(image, face=face)
+        except Exception:
+            logger.warning("Could not align face; alignment skipped.", exc_info=False)
+            aligned = None
+
+        # Prefer the embedding already computed by InsightFace during detection
+        # (avoids a second recognition pass).
+        embedding = getattr(face, "embedding", None)
+        if embedding is None:
+            # Fallback: align then embed explicitly. Aligned input is BGR here.
+            if aligned is None:
+                aligned = self._detector.get_aligned_face(image, face=face)
+            embedding = self._embedder.embed(aligned)
+
+        embedding = np.asarray(embedding, dtype=np.float32)
+        norm = float(np.linalg.norm(embedding))
+        if norm > 0:
+            embedding = embedding / norm
 
         return {
-            "embedding": embedding.astype(np.float32).tolist(),
+            "embedding": embedding.tolist(),
             "aligned_face": aligned,
             "bbox": [float(v) for v in face.bbox[:4]],
             "det_score": float(face.det_score),

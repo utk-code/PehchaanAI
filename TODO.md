@@ -1,113 +1,124 @@
-# TODO List for AI Coding Agent
-## Missing Child Identification AI System
+# TODO List
+## PehchaanAI - Cross-Age Face Recognition for Missing Child Identification
 
-**Project:** PehchaanAI - Missing Child Identification AI
+**Project:** PehchaanAI - Cross-Age Face Recognition
 **Status:** In Progress  
-**Current Date:** 2026-08-11  
-**Target Launch:** 2026-08-18 (7 days from start)
+**Current Date:** 2026-08-16  
 
 ---
 
-## ��� Current Status
+## 🎯 Current Status
 
 - [x] Planning phase complete
 - [x] All documentation created
 - [x] Phase 1, Day 1 - Environment Setup complete
 - [x] Phase 1, Day 2 - Authentication & Basic Backend complete
-- [x] Phase 2, Day 3 - Face Detection Pipeline & Case Management complete
-- [x] Phase 2, Day 4 - Vector Search & Multi-Factor Ranking complete
-- [ ] **NEXT ACTION:** Begin Day 5: Frontend Dashboard & Upload UI
+- [x] Phase 2, Day 3 - Face Detection Pipeline complete
+- [x] Phase 2, Day 4 - Vector Search (revised to pure cosine similarity)
+- [x] Day 5 - Frontend Dashboard & Upload UI built (pages, layout, upload, results)
+- [x] Dashboard bug fixes (sidebar layout, hidden content, CORS/auth) - done
+- [x] Dataset ingestion - FG-NET loaded into face_records (609/1002, all 82 persons, ages 0-69)
+- [x] **End-to-end search flow test** (create case -> upload -> search -> results) - 13 E2E API tests, 97 total
+- [ ] Day 6 - Documentation & polish
 
 ---
 
-## ��� 1-Week Accelerated Sprint
+## 📅 Development Sprint
 
 ### Day 1: Environment Setup & Database 
 - [x] Create project root directory structure
 - [x] Initialize Git repository
 - [x] Create `.gitignore` file
-- [x] Create `docker-compose.yml` file
+- [x] Create local development setup files
 - [x] Create README with setup instructions
-- [x] Test Docker Compose config
+- [x] Test backend/frontend local startup
 
 ### Day 2: Authentication & Basic Backend
 - [x] Initialize FastAPI project in `backend/` directory
-- [x] Create `requirements.txt` with dependencies (FastAPI, SQLAlchemy, JWT, password hashing, etc.)
-- [x] Add PostgreSQL + pgvector to docker-compose.yml
+- [x] Create `requirements.txt` with dependencies
+- [x] Add PostgreSQL + pgvector support to backend search path
 - [x] Create `backend/database/models.py` (Users table)
 - [x] Implement JWT authentication (login/register endpoints)
 - [x] Initialize React + TypeScript project with Vite in `frontend/`
 
-### Day 3: Face Detection Pipeline & Case Management
-- [x] Create Case model in SQLAlchemy (with `face_embedding` VECTOR)
-- [x] Integrate OpenCV & InsightFace in backend
+### Day 3: Face Detection Pipeline
+- [x] Integrate InsightFace in backend
 - [x] Implement face detection and alignment pipeline
-- [x] Create photo upload endpoint returning 512-d embeddings
-- [x] Create Case creation endpoints
+- [x] Create photo upload endpoint returning 512-d ArcFace embeddings
+- [x] Create Case model for query scenarios
 
-### Day 4: Vector Search & Multi-Factor Ranking
-- [x] Populate database with test candidates and embeddings
+### Day 4: Vector Search (Revised)
+- [x] Create FaceRecord model (searchable corpus with person_id, age, dataset)
 - [x] Implement IVFFlat index on `face_embedding`
-- [x] Implement cosine similarity vector search query
-- [x] Implement multi-factor ranking (weighing age, location, date, face similarity)
-- [x] Create Search Results endpoint
+- [x] Implement pure cosine similarity search (removed arbitrary multi-factor ranking)
+- [x] Create Search endpoints (`POST /search`, `GET /search/case/{id}`, `POST /search/photo`)
+- [x] Add dataset ingestion pipeline (`scripts/ingest_dataset.py`)
+- [x] Add cross-age evaluation script (`scripts/evaluate_cross_age.py`)
 
 ### Day 5: Frontend Dashboard & Upload UI
-- [ ] Create PhotoUpload drag & drop component in React
-- [ ] Create Case Creation form UI
-- [ ] Create Dashboard Layout
-- [ ] Build Candidate Card components to show results and similarity scores
-- [ ] Test End-to-End search flow
+- [x] Create Dashboard Layout (sidebar, header, mobile drawer)
+- [x] Create PhotoUpload drag & drop component in React
+- [x] Create Query form UI
+- [x] Create Result Card components showing retrieved photos + similarity scores
+- [x] Fix /dashboard broken layout + invisible content (Playwright verified desktop/mobile)
+- [x] Fix auth/register "Failed to fetch" (CORS allowlist for LAN + 127.0.0.1)
+- [x] Test End-to-End search flow (97 backend tests, 99% coverage)
 
-### Day 6: Age Progression Integration & AI Reports
-- [ ] Integrate Age Progression API (async image generation +5, +10, +15 years)
-- [ ] Display age-progressed images in Dashboard
-- [ ] Integrate OpenAI/Gemini API for investigation reports
-- [ ] Add AI report generation endpoint with safety constraints
-- [ ] Display AI report in Dashboard
-
-### Day 7: Testing, Bug Fixes & Deployment
-- [ ] Run complete end-to-end integration tests
-- [ ] Optimize slow queries and fix bugs
-- [ ] Polish UI/UX issues
-- [ ] Set up production Docker builds
-- [ ] Final documentation update
-- [ ] **���� LAUNCH!**
+### Day 6: Documentation & Polish
+- [ ] Complete README with usage instructions
+- [ ] Add API documentation
+- [ ] Performance testing and optimization
+- [ ] UI polish
 
 ---
 
-## ��� Notes for AI Coding Agent
+## 🔬 Core Technical Question
 
-### Before Starting Each Task:
-1. Read task description and acceptance criteria
-2. Review related code files (if any exist)
-3. Check relevant documentation (Architecture.md, Rules.md)
-4. Plan approach and identify dependencies
+**"Can a face-recognition system retrieve the same person from a database when the query photograph and database photograph are separated by a significant age gap?"**
 
-### While Implementing:
-1. Follow coding standards (PEP 8 for Python, Airbnb for TypeScript)
-2. Use type hints (Python) and TypeScript types
-3. Write docstrings and comments
-4. Handle errors gracefully
+Example scenario:
+- Person A has a photo at age 7 and another at age 18
+- System receives ONLY the age-7 photo as query
+- System should ideally retrieve Person A's age-18 photo among Top-K results
 
-### After Completing Each Task:
-1. Write unit tests (aim for 80% coverage)
-2. Run tests and verify they pass
-3. Update documentation
-4. Commit with clear message
-5. **CRITICAL RULE**: Update this `TODO.md` (check off completed items) and `PROGRESS.md` at the end of each major task/day.
+This simulates missing-child identification without using real missing-child records.
 
 ---
 
-## ��� Current Action (Start Here!)
+## 📊 Evaluation Metrics
 
-**NEXT TASK:** Day 5: Frontend Dashboard & Upload UI
+The `scripts/evaluate_cross_age.py` script measures:
+- **Rank-1 accuracy**: Is the same person's other photo at rank 1?
+- **Rank-5/10 accuracy**: Is any same-person photo in top 5/10?
+- **Mean Reciprocal Rank (MRR)**
+- **CMC Curve**: Cumulative Match Characteristic
 
-**Steps:**
-1. Create PhotoUpload drag & drop component in React
-2. Create Case Creation form UI
-3. Create Dashboard Layout
-4. Build Candidate Card components to show results and similarity scores
-5. Test End-to-End search flow
+---
 
-**Good luck! ��� Let's build something that helps bring missing children home in a week!**
+## 📁 Project Structure
+
+```
+backend/
+├── database/models.py    # User, Case, FaceRecord models
+├── face/pipeline.py      # InsightFace detection + ArcFace embedding
+├── search/
+│   ├── service.py        # Pure cosine similarity search
+│   ├── routes.py         # Search API endpoints
+│   └── schemas.py        # Request/response schemas
+└── cases/                # Query case management
+
+scripts/
+├── ingest_dataset.py     # Ingest research datasets (MORPH, CACD, etc.)
+└── evaluate_cross_age.py # Cross-age recognition evaluation
+
+frontend/                 # React + TypeScript (Vite)
+```
+
+---
+
+## 🎯 Success Criteria
+
+- Query image → Top-K results in < 5 seconds
+- Rank-10 accuracy > 70% for age gaps of 5+ years
+- Clean, professional UI for query → results workflow
+- Documented API and evaluation methodology

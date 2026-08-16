@@ -14,7 +14,7 @@ The MVP will be developed in a rapid 7-day sprint utilizing AI coding agents.
 ---
 
 ## Phase 1: Core Foundation (Days 1-2)
-- **Day 1:** Project setup, Git, Docker, Directory structure. (Done)
+- **Day 1:** Project setup, Git, local tooling, Directory structure. (Done)
 - **Day 2:** PostgreSQL + pgvector setup, FastAPI initialization, JWT Authentication, User models.
 
 ## Phase 2: AI Core & Search (Days 3-4)

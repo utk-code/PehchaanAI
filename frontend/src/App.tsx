@@ -1,78 +1,85 @@
-import { Activity, FileSearch, ShieldCheck, UploadCloud } from 'lucide-react'
+/** Main App Component with Routing */
 
-const workflowItems = [
-  {
-    label: 'Secure Access',
-    status: 'Day 2',
-    icon: ShieldCheck
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { AuthProvider, useAuth } from './context/AuthContext';
+import { Layout } from './components/layout/Layout';
+import { LoginPage } from './pages/LoginPage';
+import { RegisterPage } from './pages/RegisterPage';
+import { DashboardPage } from './pages/DashboardPage';
+import { CaseListPage } from './pages/CaseListPage';
+import { CaseCreatePage } from './pages/CaseCreatePage';
+import { CaseDetailPage } from './pages/CaseDetailPage';
+import { SearchPage } from './pages/SearchPage';
+import { ReportsPage } from './pages/ReportsPage';
+import { ProtectedRoute } from './components/auth/ProtectedRoute';
+import './styles.css';
+
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      retry: 1,
+      refetchOnWindowFocus: false,
+    },
   },
-  {
-    label: 'Case Intake',
-    status: 'Day 5',
-    icon: UploadCloud
-  },
-  {
-    label: 'Candidate Review',
-    status: 'Day 5',
-    icon: FileSearch
-  },
-  {
-    label: 'AI Reports',
-    status: 'Day 6',
-    icon: Activity
+});
+
+function AppRoutes() {
+  const { isLoading, isAuthenticated } = useAuth();
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-atmosphere">
+        <div className="animate-pulse flex flex-col items-center gap-4">
+          <div className="h-8 w-8 rounded-full bg-gradient-to-r from-brand-500 to-violet-600"></div>
+          <p className="text-white/50 text-sm">Loading...</p>
+        </div>
+      </div>
+    );
   }
-]
+
+  return (
+    <Routes>
+      <Route
+        path="/login"
+        element={
+          isAuthenticated ? <Navigate to="/dashboard" replace /> : <LoginPage />
+        }
+      />
+      <Route
+        path="/register"
+        element={
+          isAuthenticated ? <Navigate to="/dashboard" replace /> : <RegisterPage />
+        }
+      />
+      <Route
+        path="/*"
+        element={
+          <ProtectedRoute>
+            <Layout />
+          </ProtectedRoute>
+        }
+      >
+        <Route index element={<Navigate to="/dashboard" replace />} />
+        <Route path="dashboard" element={<DashboardPage />} />
+        <Route path="cases" element={<CaseListPage />} />
+        <Route path="cases/new" element={<CaseCreatePage />} />
+        <Route path="cases/:caseId" element={<CaseDetailPage />} />
+        <Route path="search" element={<SearchPage />} />
+        <Route path="reports" element={<ReportsPage />} />
+      </Route>
+    </Routes>
+  );
+}
 
 export function App() {
   return (
-    <main className="app-shell">
-      <aside className="sidebar">
-        <div>
-          <p className="eyebrow">PehchaanAI</p>
-          <h1>Investigation Workspace</h1>
-        </div>
-
-        <nav aria-label="Primary navigation">
-          <a href="/" aria-current="page">Dashboard</a>
-          <a href="/cases">Cases</a>
-          <a href="/search">Search</a>
-          <a href="/reports">Reports</a>
-        </nav>
-      </aside>
-
-      <section className="content">
-        <header className="topbar">
-          <div>
-            <p className="eyebrow">MVP Sprint</p>
-            <h2>Authentication and backend foundation</h2>
-          </div>
-          <span className="status-pill">Day 2</span>
-        </header>
-
-        <section className="workflow-grid" aria-label="Project workflow">
-          {workflowItems.map(({ label, status, icon: Icon }) => (
-            <article className="workflow-card" key={label}>
-              <Icon aria-hidden="true" size={22} />
-              <div>
-                <h3>{label}</h3>
-                <p>{status}</p>
-              </div>
-            </article>
-          ))}
-        </section>
-
-        <section className="panel">
-          <div>
-            <p className="eyebrow">Backend</p>
-            <h3>FastAPI auth API ready for integration</h3>
-            <p>
-              The frontend will call the backend for registration, login, and
-              the current investigator profile before case intake is added.
-            </p>
-          </div>
-          <code>GET /health</code>
-        </section>
-      </section>
-    </main>
-  )
+    <QueryClientProvider client={queryClient}>
+      <BrowserRouter>
+        <AuthProvider>
+          <AppRoutes />
+        </AuthProvider>
+      </BrowserRouter>
+    </QueryClientProvider>
+  );
 }

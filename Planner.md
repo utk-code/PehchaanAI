@@ -52,7 +52,7 @@ Project Setup
 ## 4. Critical Path Tasks
 
 **Week 1:**
-- Project setup (Docker, React, FastAPI)
+- Project setup (React, FastAPI, local tooling)
 - Database schema creation
 
 **Week 2:**
@@ -121,7 +121,7 @@ Project Setup
 **End of Phase 1:**
 - [ ] Authentication works end-to-end
 - [ ] Database schema is correct
-- [ ] Docker environment is stable
+- [ ] Local environment is stable
 
 **End of Phase 2:**
 - [ ] Face detection accuracy > 95%

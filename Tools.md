@@ -84,21 +84,17 @@
 
 ## 4. DevOps & Deployment
 
-**Containerization:**
-- Docker 24+
-- Docker Compose 2.20+
-
 **Web Server:**
-- Nginx (reverse proxy, SSL termination)
+- Nginx (optional for production)
 
 **Cloud Providers (Options):**
-- AWS (ECS, RDS, S3)
-- Azure (Container Apps, PostgreSQL, Blob Storage)
-- GCP (Cloud Run, Cloud SQL, Cloud Storage)
+- AWS (EC2, RDS, S3)
+- Azure (VMs, PostgreSQL, Blob Storage)
+- GCP (Compute Engine, Cloud SQL, Cloud Storage)
 
 **Monitoring:**
 - Prometheus + Grafana (metrics)
-- ELK Stack or CloudWatch (logs)
+- ELK Stack or Cloud logging
 
 ---
 
@@ -134,7 +130,6 @@
 
 **Prerequisites:**
 - Git 2.40+
-- Docker Desktop
 - Node.js 18+ LTS
 - Python 3.11+
 - VS Code (recommended)
@@ -237,7 +232,6 @@ logger.info("case_created", case_id=case.id)
 - ESLint (Microsoft)
 - Prettier - Code formatter
 - Tailwind CSS IntelliSense
-- Docker (Microsoft)
 - PostgreSQL
 - GitLens
 - Thunder Client

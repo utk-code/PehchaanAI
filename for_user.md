@@ -20,9 +20,6 @@ We've organized the project into two main parts:
 - **`backend/`**: This is the "Brain." It handles the logic, the database, and the AI math.
 - **`frontend/`**: This is the "Face." It’s what you see in your browser (buttons, forms, images).
 
-#### **Docker (The Container)**
-Think of **Docker** as a "shipping container." It packages our entire system so it runs exactly the same on my computer, your computer, or a server. It saves us from "but it worked on my machine!" errors.
-
 #### **Authentication (The Key)**
 We've built a system for users to **Register** and **Login**.
 - **JWT (JSON Web Tokens):** This is like a "VIP Wristband." Once you log in, the server gives you this token. You show it every time you ask the server for data, so it knows who you are.

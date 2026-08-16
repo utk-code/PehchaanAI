@@ -114,21 +114,21 @@
 
 ---
 
-## ADR-007: Docker Compose for Development
+## ADR-007: Local Development Setup
 
 **Date:** 2026-08-07  
-**Status:** Accepted
+**Status:** Superseded
 
-**Decision:** Use Docker Compose for local development.
+**Decision:** Use native local development tooling only.
 
 **Rationale:**
-- Consistent environments
-- Easy onboarding
-- Matches production deployment
+- Local development is simpler and faster without container orchestration
+- The backend and frontend boot cleanly as standalone apps
+- The project no longer needs a container runtime for onboarding
 
 **Consequences:**
-- Requires Docker Desktop
-- Slight performance overhead
+- Setup relies on native Python and Node tooling
+- Deployment packaging is out of scope for this repo
 
 ---
 

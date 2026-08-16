@@ -1,9 +1,13 @@
 # Node
 node_modules/
 
+
 # Python
 __pycache__/
 *.pyc
+.pytest_cache/
+.coverage
+htmlcov/
 
 # Build
 dist/
@@ -16,3 +20,12 @@ build/
 # Editor
 .vscode/
 *.log
+
+# Data / runtime artifacts (never commit)
+pehchaanai.db
+backend/pehchaanai.db
+FGNET/
+uploads/
+test_images/
+backend.pid
+$null

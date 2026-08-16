@@ -6,7 +6,7 @@ from collections.abc import Generator
 
 import pytest
 from fastapi.testclient import TestClient
-from sqlalchemy import create_engine
+from sqlalchemy import Engine, create_engine
 from sqlalchemy.orm import Session, sessionmaker
 from sqlalchemy.pool import StaticPool
 
@@ -18,24 +18,85 @@ os.environ["JWT_SECRET_KEY"] = "test-secret-key"
 
 from backend.database.models import Base  # noqa: E402
 from backend.database.session import get_db  # noqa: E402
+from backend.face.pipeline import get_face_pipeline  # noqa: E402
 from backend.main import app  # noqa: E402
 
 
-@pytest.fixture(name="client")
-def client_fixture() -> Generator[TestClient, None, None]:
-    """Test client with SQLite in-memory database."""
+def pytest_collection_modifyitems(
+    config: pytest.Config, items: list[pytest.Item]
+) -> None:
+    """Auto-skip integration tests unless explicitly requested.
+
+    The real InsightFace model loads on first use and the corpus search
+    depends on a populated database, so these tests stay out of the default
+    run. Opt in with:
+
+        python -m pytest tests -m integration -q
+    """
+    args = config.invocation_params.args
+    requested = False
+    for i, arg in enumerate(args):
+        if arg == "-m":
+            requested = i + 1 < len(args) and "integration" in args[i + 1]
+        elif arg.startswith("-m="):
+            requested = "integration" in arg[3:]
+
+    for item in items:
+        if "integration" in item.keywords and not requested:
+            item.add_marker(
+                pytest.mark.skip(reason="integration tests require -m integration")
+            )
+
+
+@pytest.fixture(scope="session", autouse=True)
+def _dispose_module_engine() -> Generator[None, None, None]:
+    """Release the module-level engine's connections at session end.
+
+    The app's module-level engine opens SQLite connections on import; disposing
+    them avoids ResourceWarnings about unclosed databases.
+    """
+    yield
+    from backend.database.session import engine
+
+    engine.dispose()
+
+
+@pytest.fixture(name="test_engine")
+def test_engine_fixture() -> Generator[Engine, None, None]:
+    """Single in-memory SQLite engine shared by the app and test sessions."""
     engine = create_engine(
         "sqlite+pysqlite:///:memory:",
         connect_args={"check_same_thread": False},
         poolclass=StaticPool,
     )
+    Base.metadata.create_all(bind=engine)
+    yield engine
+    Base.metadata.drop_all(bind=engine)
+
+
+@pytest.fixture(name="db_session")
+def db_session_fixture(test_engine: Engine) -> Generator[Session, None, None]:
+    """A direct ORM session on the same engine the app uses.
+
+    Lets tests seed corpus rows (FaceRecord) that API requests will see.
+    """
+    session = Session(bind=test_engine)
+    try:
+        yield session
+        session.commit()
+    finally:
+        session.close()
+
+
+@pytest.fixture(name="client")
+def client_fixture(test_engine: Engine) -> Generator[TestClient, None, None]:
+    """Test client with SQLite in-memory database."""
     TestingSessionLocal = sessionmaker(
         autocommit=False,
         autoflush=False,
-        bind=engine,
+        bind=test_engine,
         class_=Session,
     )
-    Base.metadata.create_all(bind=engine)
 
     def override_get_db() -> Generator[Session, None, None]:
         db = TestingSessionLocal()
@@ -50,7 +111,37 @@ def client_fixture() -> Generator[TestClient, None, None]:
         yield test_client
 
     app.dependency_overrides.clear()
-    Base.metadata.drop_all(bind=engine)
+
+
+class FakePipeline:
+    """Deterministic stand-in for the InsightFace pipeline."""
+
+    def __init__(self) -> None:
+        self.embedding: list[float] | None = None
+        self.error: Exception | None = None
+
+    def process_bytes(self, image_bytes: bytes) -> dict:
+        if self.error is not None:
+            raise self.error
+        if self.embedding is None:
+            raise RuntimeError("test error: fake_pipeline.embedding is not set")
+        return {
+            "embedding": self.embedding,
+            "aligned_face": None,
+            "bbox": [0.0, 0.0, 64.0, 64.0],
+            "det_score": 0.99,
+            "num_faces": 1,
+            "quality_pass": True,
+        }
+
+
+@pytest.fixture(name="fake_pipeline")
+def fake_pipeline_fixture() -> Generator[FakePipeline, None, None]:
+    """Override the face pipeline dependency with a configurable fake."""
+    pipeline = FakePipeline()
+    app.dependency_overrides[get_face_pipeline] = lambda: pipeline
+    yield pipeline
+    app.dependency_overrides.pop(get_face_pipeline, None)
 
 
 @pytest.fixture(name="auth_token")

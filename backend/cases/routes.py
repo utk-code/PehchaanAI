@@ -6,7 +6,7 @@ import uuid
 from datetime import date, datetime, timezone
 from pathlib import Path
 
-from fastapi import APIRouter, Depends, File, HTTPException, status, UploadFile
+from fastapi import APIRouter, Depends, File, HTTPException, Request, status, UploadFile
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
@@ -32,6 +32,16 @@ router = APIRouter(prefix="/cases", tags=["cases"])
 
 UPLOAD_DIR = Path("uploads")
 UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
+
+
+def _photo_url(request: Request, stored: str) -> str:
+    """Return a browser-loadable URL for a stored case photo."""
+    if not stored:
+        return ""
+    if stored.startswith(("http://", "https://", "data:")):
+        return stored
+    name = stored.replace("\\", "/").split("/")[-1]
+    return f"{str(request.base_url).rstrip('/')}/uploads/{name}"
 
 
 @router.post(
@@ -86,10 +96,10 @@ async def extract_embedding(
 async def upload_photo(
     file: UploadFile = File(...),
     create_case: bool = False,
-    child_name_encrypted: str | None = None,
-    age_at_disappearance: int | None = None,
-    date_missing: date | None = None,
-    location: str | None = None,
+    query_name: str | None = None,
+    query_age: int | None = None,
+    query_date: date | None = None,
+    query_location: str | None = None,
     notes: str | None = None,
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
@@ -97,7 +107,7 @@ async def upload_photo(
 ) -> PhotoUploadResponse:
     """Upload a photo, process it, and optionally create a case.
 
-    If create_case is True, all case fields are required.
+    If create_case is True, query_name and photo are required.
     """
     _validate_image_file(file)
     image_bytes = await file.read()
@@ -128,27 +138,22 @@ async def upload_photo(
 
     case_id = None
     if create_case:
-        if not all(
-            [
-                child_name_encrypted,
-                age_at_disappearance is not None,
-                date_missing,
-                location,
-            ]
-        ):
+        if not query_name:
             raise HTTPException(
                 status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-                detail="All case fields required when create_case=true",
+                detail="query_name required when create_case=true",
             )
 
         case = Case(
             investigator_id=current_user.id,
-            child_name_encrypted=child_name_encrypted,
-            age_at_disappearance=age_at_disappearance,
-            date_missing=datetime.combine(
-                date_missing, datetime.min.time(), tzinfo=timezone.utc
+            query_name=query_name,
+            query_age=query_age,
+            query_date=(
+                datetime.combine(query_date, datetime.min.time(), tzinfo=timezone.utc)
+                if query_date
+                else None
             ),
-            location=location,
+            query_location=query_location,
             notes=notes,
             photo_path=str(file_path),
             face_embedding=result["embedding"],
@@ -173,22 +178,27 @@ async def upload_photo(
     "",
     response_model=CaseRead,
     status_code=status.HTTP_201_CREATED,
-    summary="Create a new missing child case",
+    summary="Create a new query case",
 )
 def create_case(
     payload: CaseCreate,
+    request: Request,
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ) -> Case:
     """Create a new case with a pre-computed face embedding."""
     case = Case(
         investigator_id=current_user.id,
-        child_name_encrypted=payload.child_name_encrypted,
-        age_at_disappearance=payload.age_at_disappearance,
-        date_missing=datetime.combine(
-            payload.date_missing, datetime.min.time(), tzinfo=timezone.utc
+        query_name=payload.query_name,
+        query_age=payload.query_age,
+        query_date=(
+            datetime.combine(
+                payload.query_date, datetime.min.time(), tzinfo=timezone.utc
+            )
+            if payload.query_date
+            else None
         ),
-        location=payload.location,
+        query_location=payload.query_location,
         notes=payload.notes,
         photo_path=payload.photo_path,
         face_embedding=payload.face_embedding,
@@ -197,6 +207,7 @@ def create_case(
     db.add(case)
     db.commit()
     db.refresh(case)
+    case.photo_path = _photo_url(request, case.photo_path)
     return case
 
 
@@ -220,6 +231,7 @@ def list_cases(
 @router.get("/{case_id}", response_model=CaseRead, summary="Get a case by ID")
 def get_case(
     case_id: str,
+    request: Request,
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ) -> Case:
@@ -232,6 +244,11 @@ def get_case(
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN, detail="Not your case"
         )
+    if case.deleted_at is not None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Case not found"
+        )
+    case.photo_path = _photo_url(request, case.photo_path)
     return case
 
 
@@ -239,6 +256,7 @@ def get_case(
 def update_case(
     case_id: str,
     payload: CaseUpdate,
+    request: Request,
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ) -> Case:
@@ -258,6 +276,7 @@ def update_case(
 
     db.commit()
     db.refresh(case)
+    case.photo_path = _photo_url(request, case.photo_path)
     return case
 
 

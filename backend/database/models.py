@@ -2,10 +2,8 @@ import uuid
 from datetime import datetime, timezone
 from typing import Optional
 
-from sqlalchemy import Boolean, DateTime, ForeignKey, String, Text, Index
-from sqlalchemy.dialects.postgresql import UUID as PGUUID
+from sqlalchemy import Boolean, DateTime, ForeignKey, Index, JSON, String, Text
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
-from pgvector.sqlalchemy import Vector
 
 
 class Base(DeclarativeBase):
@@ -20,7 +18,7 @@ class User(Base):
     __tablename__ = "users"
 
     id: Mapped[str] = mapped_column(
-        PGUUID(as_uuid=False),
+        String(36),
         primary_key=True,
         default=lambda: str(uuid.uuid4()),
     )
@@ -44,22 +42,22 @@ class Case(Base):
     __tablename__ = "cases"
 
     id: Mapped[str] = mapped_column(
-        PGUUID(as_uuid=False),
+        String(36),
         primary_key=True,
         default=lambda: str(uuid.uuid4()),
     )
     investigator_id: Mapped[str] = mapped_column(
-        PGUUID(as_uuid=False), ForeignKey("users.id"), nullable=False
+        String(36), ForeignKey("users.id"), nullable=False
     )
-    child_name_encrypted: Mapped[str] = mapped_column(Text, nullable=False)
-    age_at_disappearance: Mapped[int] = mapped_column(nullable=False)
-    date_missing: Mapped[datetime] = mapped_column(
-        DateTime(timezone=True), nullable=False
+    query_name: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
+    query_age: Mapped[Optional[int]] = mapped_column(nullable=True)
+    query_date: Mapped[Optional[datetime]] = mapped_column(
+        DateTime(timezone=True), nullable=True
     )
-    location: Mapped[str] = mapped_column(String(255), nullable=False)
+    query_location: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
     notes: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
     photo_path: Mapped[str] = mapped_column(String(500), nullable=False)
-    face_embedding: Mapped[list[float]] = mapped_column(Vector(512), nullable=False)
+    face_embedding: Mapped[list[float]] = mapped_column(JSON, nullable=False)
     status: Mapped[str] = mapped_column(String(20), default="active", nullable=False)
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), default=utc_now
@@ -78,38 +76,26 @@ class Case(Base):
     __table_args__ = (Index("idx_cases_investigator", "investigator_id"),)
 
 
-class Candidate(Base):
-    """Reference pool of known/recovered children used as match candidates.
-
-    Candidates hold the same biometric vector representation as cases so that
-    an uploaded missing-child photo can be matched against the pool.
-    """
-
-    __tablename__ = "candidates"
+class FaceRecord(Base):
+    __tablename__ = "face_records"
 
     id: Mapped[str] = mapped_column(
-        PGUUID(as_uuid=False),
+        String(36),
         primary_key=True,
         default=lambda: str(uuid.uuid4()),
     )
-    name_encrypted: Mapped[str] = mapped_column(Text, nullable=False)
-    age_at_record: Mapped[int] = mapped_column(nullable=False)
-    record_date: Mapped[datetime] = mapped_column(
-        DateTime(timezone=True), nullable=False
-    )
-    location: Mapped[str] = mapped_column(String(255), nullable=False)
-    source: Mapped[str] = mapped_column(String(50), default="database", nullable=False)
+    person_id: Mapped[str] = mapped_column(String(100), index=True, nullable=False)
+    age: Mapped[int] = mapped_column(nullable=False)
+    capture_year: Mapped[Optional[int]] = mapped_column(nullable=True)
+    dataset: Mapped[str] = mapped_column(String(100), default="unknown", nullable=False)
+    metadata_json: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
     photo_path: Mapped[str] = mapped_column(String(500), nullable=False)
-    face_embedding: Mapped[list[float]] = mapped_column(Vector(512), nullable=False)
+    face_embedding: Mapped[list[float]] = mapped_column(JSON, nullable=False)
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), default=utc_now
     )
 
     __table_args__ = (
-        Index(
-            "idx_candidates_embedding",
-            "face_embedding",
-            postgresql_using="ivfflat",
-            postgresql_ops={"face_embedding": "vector_cosine_ops"},
-        ),
+        Index("idx_face_records_person_id", "person_id"),
+        Index("idx_face_records_dataset", "dataset"),
     )

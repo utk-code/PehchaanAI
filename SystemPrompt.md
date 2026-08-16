@@ -21,7 +21,7 @@ You are an AI coding agent building a **Missing Child Identification AI System**
 - Face Recognition: InsightFace/ArcFace (pretrained)
 - Age Progression: External API or pretrained model
 - AI Reports: OpenAI GPT-4 or Google Gemini
-- Deployment: Docker, Docker Compose
+- Deployment: local development only
 
 **MVP Timeline:** 8 weeks
 
@@ -92,7 +92,6 @@ missing-child-ai/
 ├── models/            # Pretrained models
 ├── data/              # Test data
 ├── tests/
-├── docker-compose.yml
 └── README.md
 ```
 
@@ -141,7 +140,7 @@ The MVP is complete when:
 ## Guidance
 
 **Start with:**
-1. Set up project structure and Docker
+1. Set up project structure and local tooling
 2. Create database schema and models
 3. Build authentication system
 4. Implement face detection pipeline

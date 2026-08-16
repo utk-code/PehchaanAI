@@ -10,7 +10,7 @@
 
 - [x] Secure OpenAI or Gemini API access
 - [x] Set up development machines
-- [x] Install Docker, Node.js, Python
+- [x] Install Node.js, Python
 - [x] Create Git repository
 - [x] Obtain sample test images
 
@@ -20,7 +20,7 @@
 
 ### Day 1: Setup & Environment
 **Goals:** Running dev environment
-**Actions:** Initialize project, Docker Compose, Git. (Complete)
+**Actions:** Initialize project, local setup, Git. (Complete)
 
 ### Day 2: Authentication & Base Backend
 **Goals:** Secure login system and database models
@@ -44,7 +44,7 @@
 
 ### Day 7: Testing & Deployment
 **Goals:** Production launch
-**Actions:** E2E testing, bug fixes, UI polish, production Docker builds.
+**Actions:** E2E testing, bug fixes, UI polish, production packaging.
 
 ---
 
@@ -125,10 +125,6 @@ query = """
 ## 6. Deployment Commands
 
 ```bash
-# Build images
-docker build -t missing-child-backend ./backend
-docker build -t missing-child-frontend ./frontend
-
 # Deploy to production
 # (commands vary by cloud provider)
 

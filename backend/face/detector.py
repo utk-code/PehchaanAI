@@ -7,7 +7,9 @@ from functools import lru_cache
 
 import numpy as np
 from insightface.app import FaceAnalysis
+from insightface.utils import face_align
 
+from backend.config import get_settings
 from backend.face.exceptions import (
     FaceDetectionError,
     NoFaceFoundError,
@@ -23,6 +25,7 @@ class FaceDetector:
         ctx_id: GPU device id (>= 0) or CPU (-1).
         det_size: Input size for detection model (width, height).
         det_thresh: Detection confidence threshold.
+        model_name: InsightFace model pack name (e.g. "buffalo_s", "buffalo_l").
     """
 
     def __init__(
@@ -30,9 +33,13 @@ class FaceDetector:
         ctx_id: int = -1,
         det_size: tuple[int, int] = (640, 640),
         det_thresh: float = 0.5,
+        model_name: str | None = None,
     ) -> None:
+        if model_name is None:
+            model_name = get_settings().face_model_name
+        logger.info("Loading InsightFace model pack %r (ctx_id=%s)", model_name, ctx_id)
         self._app = FaceAnalysis(
-            name="buffalo_l",
+            name=model_name,
             providers=(
                 ["CUDAExecutionProvider", "CPUExecutionProvider"]
                 if ctx_id >= 0
@@ -77,26 +84,35 @@ class FaceDetector:
 
         return faces
 
-    def get_aligned_face(self, image: np.ndarray) -> np.ndarray:
-        """Detect the best face and return the aligned 112x112 crop.
+    def get_aligned_face(
+        self, image: np.ndarray, face: dict | None = None
+    ) -> np.ndarray:
+        """Detect (or reuse) the best face and return the aligned 112x112 crop.
 
         Args:
             image: BGR image as numpy array.
+            face: Previously detected face dict (skips re-detection).
 
         Returns:
-            Aligned face image as numpy array (112, 112, 3) in RGB format.
+            Aligned face image as numpy array (112, 112, 3) in BGR format.
 
         Raises:
             NoFaceFoundError: If no face is detected.
+            FaceDetectionError: If alignment fails.
         """
-        faces = self.detect(image, max_faces=1)
-        face = faces[0]
+        if face is None:
+            face = self.detect(image, max_faces=1)[0]
 
-        # InsightFace provides aligned face via `face.aligned` after get()
-        # which is 112x112 RGB
-        if face.aligned is None:
+        kps = getattr(face, "kps", None)
+        if kps is None or len(kps) < 5:
+            raise FaceDetectionError("Face alignment failed: missing landmarks")
+
+        # InsightFace's norm_crop performs the standard 112x112 alignment
+        # using the first 5 facial keypoints.
+        aligned = face_align.norm_crop(image, kps[:5], image_size=112)
+        if aligned is None:
             raise FaceDetectionError("Face alignment failed")
-        return face.aligned
+        return aligned
 
     def get_largest_face(self, image: np.ndarray) -> dict:
         """Detect and return the largest face by bounding box area.
@@ -127,10 +143,21 @@ class FaceDetector:
 
 @lru_cache(maxsize=1)
 def get_face_detector(
-    ctx_id: int = -1, det_size: tuple[int, int] = (640, 640), det_thresh: float = 0.5
+    ctx_id: int = -1,
+    det_size: tuple[int, int] = (640, 640),
+    det_thresh: float = 0.5,
+    model_name: str | None = None,
 ) -> FaceDetector:
-    """Cached singleton factory for FaceDetector."""
-    return FaceDetector(ctx_id=ctx_id, det_size=det_size, det_thresh=det_thresh)
+    """Cached singleton factory for FaceDetector.
+
+    If model_name is None, the value from ``FACE_MODEL_NAME`` setting is used.
+    """
+    return FaceDetector(
+        ctx_id=ctx_id,
+        det_size=det_size,
+        det_thresh=det_thresh,
+        model_name=model_name,
+    )
 
 
 def detect_faces(

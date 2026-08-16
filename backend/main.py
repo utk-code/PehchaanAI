@@ -1,8 +1,10 @@
 from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
+from pathlib import Path
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 
 from backend.auth.routes import router as auth_router
 from backend.cases.routes import router as cases_router
@@ -39,7 +41,23 @@ app.include_router(auth_router)
 app.include_router(cases_router)
 app.include_router(search_router)
 
+# Static image serving:
+#   /uploads     -> uploaded case query photos
+#   /ref-images  -> reference corpus images (e.g. FGNET/images)
+app.mount("/uploads", StaticFiles(directory="uploads", check_dir=False), name="uploads")
+app.mount(
+    "/ref-images",
+    StaticFiles(directory=Path(settings.ref_images_dir), check_dir=False),
+    name="ref-images",
+)
+
 
 @app.get("/health", tags=["system"])
 def health_check() -> dict[str, str]:
     return {"status": "ok"}
+
+
+if __name__ == "__main__":
+    import uvicorn
+
+    uvicorn.run(app, host="0.0.0.0", port=8000)

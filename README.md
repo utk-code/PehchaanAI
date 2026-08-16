@@ -1,168 +1,241 @@
-# PehchaanAI: Missing Child Identification AI System
+# PehchaanAI: Cross-Age Face Recognition for Missing Child Identification
 
-A web-based AI system to help investigators find potential matches for missing children using facial recognition, age progression, and AI-powered analysis.
+A research prototype evaluating whether face recognition can retrieve the same person across significant age gaps — motivated by missing child identification scenarios.
 
-**Version:** 1.0.0 (MVP)
-**Status:** Planning Phase
-**Target Launch:** End of Week 8
-
----
-
-## 🎯 Project Overview
-
-This system enables investigators to:
-1. Upload a missing child's photo
-2. Search a database for visually similar faces
-3. View age-progressed and enhanced images
-4. Review AI-generated investigation reports
-5. Export and share results with secure audit trails
-
-Important: system outputs are investigative leads only. All matches require human review and formal verification (DNA or other biometrics).
+**Version:** 2.0 (Revised Scope)  
+**Status:** Implementation Phase (Days 1-4 complete)  
 
 ---
 
-## 🛠️ Tech Stack
+## ��� Project Overview
 
-Frontend: React 18+ (TypeScript), Tailwind CSS, React Router, TanStack Query
+**Core Technical Question:**
+> "Can a face-recognition system retrieve the same person from a database when the query photograph and database photograph are separated by a significant age gap?"
 
-Backend: Python 3.11+ (FastAPI), PostgreSQL 15+ (pgvector), SQLAlchemy, InsightFace, OpenCV, OpenAI GPT-4
+**Example:**
+- Person A has a photo at age 7 and another at age 18
+- System receives ONLY the age-7 photo as query
+- System should ideally retrieve Person A's age-18 photo among Top-K results
 
-Infrastructure: Docker Compose, Nginx, JWT auth, optional Kubernetes deployment
+This simulates a missing-child identification scenario **without using real missing-child records**. We use public research face datasets (MORPH, CACD, FG-NET, AgeDB) containing people photographed at different ages.
+
+**Important:** This is a **research prototype**, not a production police/NGO system. It does NOT connect to CCTV, Aadhaar, social media, or law-enforcement databases.
 
 ---
 
-## 📁 Project Structure (high level)
+## ������ Tech Stack
+
+**Frontend:** React 18+ (TypeScript), Vite, Tailwind CSS, React Router, Axios, TanStack Query  
+**Backend:** Python 3.11+ (FastAPI), SQLite for local dev or PostgreSQL 15+ (pgvector) for full vector search, SQLAlchemy 2.0, InsightFace (ArcFace), OpenCV  
+**Infrastructure:** JWT auth, local development only  
+
+---
+
+## ��� Project Structure
 
 ```
-missing-child-ai/
-├── frontend/         # React + TypeScript
-├── backend/          # FastAPI backend
-├── models/           # Pretrained model artifacts
-├── data/             # Sample/test images and datasets
-├── tests/            # Unit & integration tests
-├── docs/             # Design docs, PRD, ADRs
-├── docker-compose.yml
-└── README.md
+PehchaanAI/
+├── backend/
+│   ├── auth/              # JWT auth + password hashing
+│   ├── cases/             # Query case CRUD + photo upload
+│   ├── database/          # SQLAlchemy models (User, Case, FaceRecord)
+│   ├── face/              # InsightFace detection + ArcFace embedding
+│   ├── search/            # Pure cosine similarity search
+│   ├── config.py
+│   ├── main.py
+│   └── requirements.txt
+├── frontend/              # React + TypeScript (Vite)
+├── scripts/
+│   ├── ingest_dataset.py     # Ingest research datasets into face_records
+│   └── evaluate_cross_age.py # Cross-age recognition evaluation
+├── tests/                 # Unit tests (pytest)
+├── TODO.md
+├── PROGRESS.md
+├── Architecture.md
+��── README.md
 ```
 
 ---
 
-## 🚀 Quick Start (local without Docker)
+## ��� Quick Start (Local Development)
 
-1. Install Python 3.11+ and Node.js 24+.
-2. Backend:
-   - python -m venv .venv
-   - .venv\Scripts\Activate.ps1  # PowerShell
-   - pip install -r backend/requirements.txt
-   - cp backend/.env.example backend/.env
-3. Frontend:
-   - cd frontend
-   - npm install
-   - npm run dev
-4. Run backend locally:
-   - uvicorn backend.main:app --reload --port 8000
+### Prerequisites
+- Python 3.11+
+- Node.js 24+
+- No container runtime required
+- (Optional) GPU for InsightFace acceleration
 
-Access the Vite dev frontend at http://localhost:5173 and API docs at http://localhost:8000/docs.
-The Docker-served frontend is available at http://localhost:3000.
-
-Current backend endpoints:
-- `GET /health`
-- `POST /auth/register`
-- `POST /auth/login`
-- `GET /auth/me`
-
-Docker (recommended for parity):
-
-# Using Docker (recommended)
-
-A docker-compose configuration is provided for local development and parity with CI.
-
-Start all services in detached mode:
+### 1. Backend Setup
 
 ```bash
-docker-compose up -d --build
+# Create virtual environment
+python -m venv .venv
+.venv\Scripts\Activate.ps1  # PowerShell Windows
+# source .venv/bin/activate  # Linux/macOS
+
+# Install dependencies
+pip install -r backend/requirements.txt
+
+# Set environment variables
+copy backend/.env.example backend/.env  # Windows
+# cp backend/.env.example backend/.env  # Linux/macOS
+
+# Edit backend/.env with your DATABASE_URL and JWT_SECRET_KEY
+# DATABASE_URL=postgresql+psycopg://user:pass@localhost:5432/pehchaanai
+
+# Run database migrations (tables created on app startup)
+# Start backend
+uvicorn backend.main:app --reload --host 0.0.0.0 --port 8000
 ```
 
-Services:
-- frontend: http://localhost:3000 (served by nginx)
-- backend: http://localhost:8000
-- postgres: 5432 (for local testing; credentials are in docker-compose.yml)
-
-Stop and remove containers:
+### 2. Frontend Setup
 
 ```bash
-docker-compose down
+cd frontend
+npm install
+npm run dev
+# Runs on http://localhost:5173 (proxies API to backend:8000)
 ```
 
-Notes:
-- The backend Dockerfile expects backend/requirements.txt and a FastAPI app entrypoint at backend/main.py (ASGI app `app`).
-- The frontend Dockerfile builds the site from frontend/ and serves it with nginx.
-- Adjust compose services and environment variables for production deployments.
+## ��� Dataset Ingestion
 
+To populate the searchable corpus with research datasets (MORPH, CACD, FG-NET, etc.):
 
----
+### Option A: From CSV Metadata
+```bash
+# CSV columns: image_path, person_id, age, capture_year, dataset
+python scripts/ingest_dataset.py \
+  --csv /path/to/metadata.csv \
+  --images-root /path/to/images \
+  --dataset-name MORPH
+```
 
-## 🧪 Running Tests
+### Option B: From Directory Structure
+```
+dataset_root/
+├── person_001/
+│   ├── 7.jpg      # age 7
+│   ├── 18_2010.jpg # age 18, year 2010
+├── person_002/
+│   ├── 5.png
+```
 
-Backend (local):
-
-python -m pytest tests/ -v --maxfail=1
-
-Frontend:
-
-cd frontend && npm test -- --watchAll=false
-
-CI: workflows run pytest and frontend tests inside containers (see .github/workflows)
-
----
-
-## 📦 Releases & Versioning
-
-Follow semantic versioning (MAJOR.MINOR.PATCH). Use changelogs and release notes in the releases page.
-
----
-
-## 🤝 Contributing
-
-Contributions are welcome. Please follow these steps:
-
-1. Open an issue describing the change or feature.
-2. Create a branch: feature/short-description or fix/short-description
-3. Add tests for new behavior.
-4. Open a pull request against main with a clear description and testing notes.
-
-Before merging: ensure CI passes, include changelog entry if applicable, and get at least one approving review from the core team.
-
-Code style: use Black (Python) and Prettier (JS/TS). Run linters before committing.
+```bash
+python scripts/ingest_dataset.py \
+  --dataset-dir /path/to/dataset_root \
+  --dataset-name FG-NET
+```
 
 ---
 
-## 📝 Code of Conduct
+## ��� Cross-Age Evaluation
 
-Be respectful and professional. Report violations to the maintainers.
+Measure how well the system retrieves same-person matches across age gaps:
 
----
+```bash
+python scripts/evaluate_cross_age.py \
+  --dataset MORPH \
+  --top-k 20 \
+  --min-age-gap 5 \
+  --output results.json
+```
 
-## ⚖️ License
-
-This repository is released under the MIT License. See LICENSE.md for details.
-
----
-
-## 🔐 Security & Privacy
-
-- Treat all uploaded images as sensitive data.
-- Store only the minimum required PII and use encryption at rest and in transit.
-- Log access and changes with an audit trail.
-- Provide opt-out/deletion procedures for data subjects where required by law.
+**Outputs:**
+- Rank-1 / Rank-5 / Rank-10 accuracy
+- Mean Reciprocal Rank (MRR)
+- CMC Curve (Cumulative Match Characteristic)
 
 ---
 
-## 🙏 Acknowledgments
+## ��� API Endpoints
 
-Thanks to InsightFace, OpenAI, pgvector contributors, and research partners.
+### Authentication
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| POST | `/auth/register` | Register new investigator |
+| POST | `/auth/login` | Get JWT access token |
+| GET | `/auth/me` | Get current user info |
+
+### Cases (Query Management)
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| POST | `/cases/photo/embedding` | Extract face embedding from photo (preview) |
+| POST | `/cases/photo/upload` | Upload photo + optionally create case |
+| POST | `/cases` | Create case with pre-computed embedding |
+| GET | `/cases` | List investigator's cases |
+| GET | `/cases/{id}` | Get case details |
+| PATCH | `/cases/{id}` | Update case |
+| DELETE | `/cases/{id}` | Soft delete case |
+
+### Search (Face Corpus)
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| POST | `/search` | Search with explicit 512-d embedding |
+| GET | `/search/case/{case_id}` | Search using stored case embedding |
+| POST | `/search/photo` | Upload photo → extract embedding → search |
 
 ---
 
-**Last Updated:** August 11, 2026
-**Document Owner:** Development Team
+## ��� Testing
+
+```bash
+# Run all tests
+python -m pytest tests -v
+
+# Check code style
+python -m black --check backend tests
+python -m flake8 backend tests
+```
+
+---
+
+## ��� Current Status (Day 4 Complete)
+
+| Component | Status |
+|-----------|--------|
+| Auth (JWT) | �� Done |
+| Face Detection + ArcFace Embedding | �� Done |
+| Case Management (CRUD + Photo Upload) | �� Done |
+| FaceRecord Corpus Model | �� Done |
+| IVFFlat Index + Cosine Search | �� Done |
+| Search API (3 endpoints) | �� Done |
+| Dataset Ingestion Pipeline | �� Done |
+| Cross-Age Evaluation Script | �� Done |
+| Frontend Dashboard | ��� Day 5 |
+
+---
+
+## ��� Ethics & Scope
+
+- **No real missing child data** — uses only public research datasets
+- **No surveillance capabilities** — single-image query → corpus search only
+- **Investigative leads only** — all matches require human review + formal verification (DNA, etc.)
+- **Access controlled** — JWT auth, users only see their own queries
+- **Audit logging** — planned
+
+---
+
+## ��� Documentation
+
+- `TODO.md` — Task tracking and sprint plan
+- `PROGRESS.md` — Daily progress log
+- `Architecture.md` — System architecture and design decisions
+- `PRD.md` — Product Requirements Document
+- `ADR.md` — Architecture Decision Records
+
+---
+
+## ��� Contributing
+
+This is a college prototype. Issues/PRs welcome for:
+- Dataset ingestion improvements
+- Evaluation methodology
+- Frontend UX
+- Performance optimization
+- Documentation
+
+---
+
+## ��� License
+
+MIT License — for research and educational purposes.

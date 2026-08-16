@@ -6,8 +6,13 @@ export default defineConfig({
   server: {
     port: 5173,
     proxy: {
-      '/api': 'http://localhost:8000',
-      '/auth': 'http://localhost:8000'
-    }
-  }
+      // API calls use an /api prefix so SPA routes (/cases, /search) never collide
+      // with backend paths. Rewrites /api/auth/login -> /auth/login.
+      '/api': {
+        target: 'http://localhost:8000',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api/, ''),
+      },
+    },
+  },
 })
