@@ -32,6 +32,36 @@ type SearchResult = {
     face_similarity: number;
 };
 
+export type ReportCandidate = {
+    rank: number;
+    record_id: string;
+    person_id: string;
+    age: number;
+    dataset: string;
+    face_similarity: number;
+    photo_path: string;
+};
+
+export type InvestigationReport = {
+    case_id: string;
+    query_name?: string;
+    query_age?: number;
+    query_location?: string;
+    query_date?: string;
+    generated_at: string;
+    total_records: number;
+    total_candidates: number;
+    top_match_similarity: number;
+    high_confidence: number;
+    medium_confidence: number;
+    low_confidence: number;
+    summary: string;
+    findings: string[];
+    candidates: ReportCandidate[];
+    recommendations: string[];
+    next_steps: string[];
+};
+
 async function request<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
     const token = localStorage.getItem('access_token');
     const headers = new Headers(options.headers);
@@ -158,6 +188,11 @@ export const searchApi = {
             body: formData,
         });
     },
+};
+
+export const reportsApi = {
+    generate: (caseId: string) =>
+        request<InvestigationReport>(`/reports/${caseId}`),
 };
 
 export const healthApi = {

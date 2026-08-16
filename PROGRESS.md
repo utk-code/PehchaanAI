@@ -1,5 +1,19 @@
 # Progress
 
+## 2026-08-16 - Real Reports endpoint + age-progression feasibility (DONE)
+
+- Added rule-based investigation report feature (no LLM/API key needed):
+  - `backend/reports/routes.py` + `schemas.py`: GET `/reports/{case_id}` runs the case's live search (top 20, min sim 0.3) and composes summary + findings + confidence buckets (high>=0.6, med 0.4-0.6, low 0.3-0.4) + recommendations + next steps; candidate photos rewritten to absolute URLs; 404 for missing/foreign/deleted cases (mirrors cases/search conventions).
+  - Frontend `ReportsPage.tsx` now calls the real API (replaced the fake 2s setTimeout template), renders summary/chips/candidate grid/findings/recommendations/next-steps, downloads a real Markdown file.
+  - Tests: `tests/test_reports.py` 6 tests (401/404 missing/404 foreign/real findings/empty corpus). Suite now **103 passed, 3 skipped**; `npm run build` passes; black/flake8 clean.
+  - Live-verified via API: upload 001A02 -> case -> report with 609 records, 20 candidates, top person 001 sim 1.0, buckets 1/13/6.
+  - NOTE: `searchApi.searchByPhoto` still sends top_k/min_similarity as multipart fields (FastAPI binds them as query params, so they're silently ignored -> defaults used). Pre-existing, harmless; would fix same way as uploadPhoto if params needed.
+- Age-progression feasibility assessment (Day 6 roadmap item):
+  - Options rated: Fast-AgingGAN (CycleGAN, simple, quick, good for demo - repo verified), HRFAE (PyTorch, strong identity retention, pretrained on IMDB-WIKI/FFHQ), SAM (attention-based, good quality), FM-Age (current SOTA cross-sectional, repo not verified reachable).
+  - Fits our stack: pipeline already returns 5-point kps -> norm_crop to 256 for aging input; ONNX/PyTorch forward pass ~100-500ms GPU or ~seconds CPU per target; weights 100-500MB one-time download.
+  - Key caveat: age-progressed images are a VISUAL AID only - their embeddings do NOT match corpus embeddings, so never feed progressions back into search as the query.
+  - Recommended path: add `backend/age_progression/` service + `POST /cases/{id}/age-progress` endpoint -> save PNGs to `uploads/age_progressed/` -> store paths on Case -> frontend card. Recommend Fast-AgingGAN first (fast, simple), swap to HRFAE later if quality lags.
+
 ## 2026-08-16 - Cross-age evaluation over full corpus (DONE)
 
 - Ran `scripts/evaluate_cross_age.py` against SQLite corpus (609 records, 82 persons, 607 queries). Fixed 2 bugs in the script: read `query_record.id` (was `record_id`, doesn't exist on model x2 places); and excluded the query image itself from the gallery (self-match otherwise occupies rank 1, making rank-1 structurally 0).
