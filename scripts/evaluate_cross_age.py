@@ -93,13 +93,17 @@ def evaluate_person(
 
     results = []
     for query_record in records:
-        # Search
+        # Search (exclude the query image itself, which is part of the corpus
+        # and would otherwise occupy rank 1 as an exact self-match)
         response = search_face_records(
             db,
             query_embedding=query_record.face_embedding,
             top_k=top_k,
             min_similarity=min_similarity,
         )
+        response.results = [
+            r for r in response.results if r.record_id != query_record.id
+        ]
 
         # Find same-person records in results with sufficient age gap
         query_age = query_record.age
@@ -125,7 +129,7 @@ def evaluate_person(
             results.append(
                 {
                     "person_id": person_id,
-                    "query_record_id": query_record.record_id,
+                    "query_record_id": query_record.id,
                     "query_age": query_age,
                     "best_rank": best["rank"],
                     "best_similarity": best["similarity"],
@@ -139,7 +143,7 @@ def evaluate_person(
             results.append(
                 {
                     "person_id": person_id,
-                    "query_record_id": query_record.record_id,
+                    "query_record_id": query_record.id,
                     "query_age": query_age,
                     "best_rank": None,
                     "best_similarity": None,

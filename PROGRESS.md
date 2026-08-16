@@ -1,5 +1,15 @@
 # Progress
 
+## 2026-08-16 - Cross-age evaluation over full corpus (DONE)
+
+- Ran `scripts/evaluate_cross_age.py` against SQLite corpus (609 records, 82 persons, 607 queries). Fixed 2 bugs in the script: read `query_record.id` (was `record_id`, doesn't exist on model x2 places); and excluded the query image itself from the gallery (self-match otherwise occupies rank 1, making rank-1 structurally 0).
+- **Results (self-exclusion protocol):**
+  - Rank-1: 23.2% · Rank-5: 80.4% · Rank-10: 89.5% · Rank-20: 89.5% · MRR: 0.46
+  - By age gap: 5-9y (n=439): R1 25% R5 85% R10 97% · 10-14y (n=76): R1 21% R5 90% R10 95% · 15+y (n=45): R1 33% R5/R10 100%
+- **Success criterion met:** Rank-10 > 70% -> 89.5% overall, ~95-100% for real cross-age gaps.
+- Insight: pure cosine ranking reliably surfaces the RIGHT PERSON early (top-5 ~80%+), but not always the single best photo (rank-1 23%). Room to improve with age-progression/multi-factor re-ranking; search 5-10x queries ("person 001" repeats) stay under 1s per query.
+- 3 files changed (uncommitted): `scripts/evaluate_cross_age.py` bug fixes + doc edit.
+
 ## 2026-08-16 - Real-model verification + lint cleanup (DONE)
 
 - Added `scripts/smoke_search.py`: end-to-end smoke against the LIVE backend (auth -> real InsightFace extraction -> /search/photo -> same-person rank-1 + corpus count). Usage: `python scripts/smoke_search.py`. Exit code 0/1.
