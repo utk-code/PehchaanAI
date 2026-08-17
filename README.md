@@ -1,241 +1,204 @@
 # PehchaanAI: Cross-Age Face Recognition for Missing Child Identification
 
-A research prototype evaluating whether face recognition can retrieve the same person across significant age gaps — motivated by missing child identification scenarios.
+A research prototype evaluating whether face recognition can retrieve the same
+person across significant age gaps — motivated by missing-child identification
+scenarios.
 
-**Version:** 2.0 (Revised Scope)  
-**Status:** Implementation Phase (Days 1-4 complete)  
-
----
-
-## ��� Project Overview
-
-**Core Technical Question:**
-> "Can a face-recognition system retrieve the same person from a database when the query photograph and database photograph are separated by a significant age gap?"
-
-**Example:**
-- Person A has a photo at age 7 and another at age 18
-- System receives ONLY the age-7 photo as query
-- System should ideally retrieve Person A's age-18 photo among Top-K results
-
-This simulates a missing-child identification scenario **without using real missing-child records**. We use public research face datasets (MORPH, CACD, FG-NET, AgeDB) containing people photographed at different ages.
-
-**Important:** This is a **research prototype**, not a production police/NGO system. It does NOT connect to CCTV, Aadhaar, social media, or law-enforcement databases.
+**Status:** Implementation (days 1-5 complete) — case flow, corpus ingestion,
+cross-age evaluation, real reports, and quality-warning search all working.
 
 ---
 
-## ������ Tech Stack
+## Core Technical Question
 
-**Frontend:** React 18+ (TypeScript), Vite, Tailwind CSS, React Router, Axios, TanStack Query  
-**Backend:** Python 3.11+ (FastAPI), SQLite for local dev or PostgreSQL 15+ (pgvector) for full vector search, SQLAlchemy 2.0, InsightFace (ArcFace), OpenCV  
-**Infrastructure:** JWT auth, local development only  
+> Can a face-recognition system retrieve the same person from a database when
+> the query photograph and database photograph are separated by a significant
+> age gap?
+
+Example: Person A has a photo at age 7 and another at age 18. The system
+receives only the age-7 photo and should retrieve Person A's age-18 photo in
+the top-K results.
+
+We use public research datasets (FG-NET, etc.), not real missing-child
+records. This is a **research prototype**, not a production law-enforcement
+system: it does not connect to CCTV, Aadhaar, social media, or police
+databases.
 
 ---
 
-## ��� Project Structure
+## Tech Stack
+
+- **Backend:** Python 3.11+ · FastAPI · SQLAlchemy 2.0 · InsightFace
+  (ArcFace, `buffalo_s` by default) · OpenCV · SQLite (local dev)
+- **Frontend:** React 18 + TypeScript · Vite · Tailwind CSS v4 · React Router ·
+  TanStack Query · Framer Motion
+- **Auth:** JWT (Argon2 password hashing via `pwdlib`)
+- **Search:** pure cosine similarity over stored 512-d face embeddings
+
+---
+
+## Project Structure
 
 ```
 PehchaanAI/
 ├── backend/
-│   ├── auth/              # JWT auth + password hashing
-│   ├── cases/             # Query case CRUD + photo upload
-│   ├── database/          # SQLAlchemy models (User, Case, FaceRecord)
-│   ├── face/              # InsightFace detection + ArcFace embedding
-│   ├── search/            # Pure cosine similarity search
-│   ├── config.py
-│   ├── main.py
+│   ├── auth/          # JWT auth + password hashing
+│   ├── cases/         # Query case CRUD + photo upload
+│   ├── database/      # SQLAlchemy models (User, Case, FaceRecord)
+│   ├── face/          # InsightFace detection + ArcFace embedding pipeline
+│   ├── reports/       # Rule-based investigation reports
+│   ├── search/        # Cosine similarity search + ranking
+│   ├── main.py        # FastAPI app (static mounts /uploads, /ref-images)
 │   └── requirements.txt
-├── frontend/              # React + TypeScript (Vite)
+├── frontend/          # React + TypeScript (Vite)
 ├── scripts/
-│   ├── ingest_dataset.py     # Ingest research datasets into face_records
-│   └── evaluate_cross_age.py # Cross-age recognition evaluation
-├── tests/                 # Unit tests (pytest)
-├── TODO.md
-├── PROGRESS.md
-├── Architecture.md
-��── README.md
+│   ├── ingest_dataset.py      # Ingest FG-NET into face_records
+│   ├── evaluate_cross_age.py  # Cross-age recognition evaluation
+│   └── smoke_search.py        # Live end-to-end model + search smoke test
+├── tests/             # pytest suite (unit + API + integration)
+├── pehchaanai.db      # SQLite database (gitignored)
+└── docs: TODO.md, PROGRESS.md, copilot_work.md, Architecture.md
 ```
 
 ---
 
-## ��� Quick Start (Local Development)
+## Quick Start (Local Development)
 
 ### Prerequisites
 - Python 3.11+
-- Node.js 24+
-- No container runtime required
-- (Optional) GPU for InsightFace acceleration
+- Node.js 20+ (frontend uses Vite 8)
+- No container runtime required; InsightFace runs on CPU (`ctx_id=-1`)
 
-### 1. Backend Setup
+### 1. Backend
 
-```bash
-# Create virtual environment
+```powershell
+# PowerShell (Windows)
 python -m venv .venv
-.venv\Scripts\Activate.ps1  # PowerShell Windows
-# source .venv/bin/activate  # Linux/macOS
+.venv\Scripts\Activate.ps1
 
-# Install dependencies
 pip install -r backend/requirements.txt
 
-# Set environment variables
-copy backend/.env.example backend/.env  # Windows
-# cp backend/.env.example backend/.env  # Linux/macOS
+copy backend/.env.example backend/.env
+# DB defaults to sqlite+pysqlite:///./pehchaanai.db at the repo root.
+# Set JWT_SECRET_KEY to something long; FACE_MODEL_NAME=buffalo_s is fine for CPU.
 
-# Edit backend/.env with your DATABASE_URL and JWT_SECRET_KEY
-# DATABASE_URL=postgresql+psycopg://user:pass@localhost:5432/pehchaanai
-
-# Run database migrations (tables created on app startup)
-# Start backend
-uvicorn backend.main:app --reload --host 0.0.0.0 --port 8000
+uvicorn backend.main:app --reload --port 8000
 ```
 
-### 2. Frontend Setup
+On first use InsightFace downloads its model pack to
+`~/.insightface/models/` automatically.
 
-```bash
+### 2. Frontend
+
+```powershell
 cd frontend
 npm install
-npm run dev
-# Runs on http://localhost:5173 (proxies API to backend:8000)
+npm run dev          # http://localhost:5173
 ```
 
-## ��� Dataset Ingestion
+The Vite dev server proxies `/api/*` to `http://localhost:8000` (see
+`frontend/vite.config.ts`). The API base is relative (`/api`), so the app
+works from localhost and any LAN device without CORS issues.
 
-To populate the searchable corpus with research datasets (MORPH, CACD, FG-NET, etc.):
+### 3. Dataset ingestion
 
-### Option A: From CSV Metadata
-```bash
-# CSV columns: image_path, person_id, age, capture_year, dataset
-python scripts/ingest_dataset.py \
-  --csv /path/to/metadata.csv \
-  --images-root /path/to/images \
-  --dataset-name MORPH
+Populate the searchable corpus from the FG-NET dataset:
+
+```powershell
+# Requires FG-NET images in FGNET/images/ (folder is gitignored)
+python scripts/ingest_dataset.py --images-root FGNET/images --dataset FGNET
 ```
 
-### Option B: From Directory Structure
-```
-dataset_root/
-├── person_001/
-│   ├── 7.jpg      # age 7
-│   ├── 18_2010.jpg # age 18, year 2010
-├── person_002/
-│   ├── 5.png
-```
-
-```bash
-python scripts/ingest_dataset.py \
-  --dataset-dir /path/to/dataset_root \
-  --dataset-name FG-NET
-```
+The checked-in `pehchaanai.db` is gitignored; a freshly ingested corpus
+contains ~609 usable FG-NET records across 82 persons (ages 0-69).
 
 ---
 
-## ��� Cross-Age Evaluation
+## Testing
 
-Measure how well the system retrieves same-person matches across age gaps:
+```powershell
+# Full unit + API suite (mocked face pipeline; 107 tests)
+python -m pytest tests -q
 
-```bash
-python scripts/evaluate_cross_age.py \
-  --dataset MORPH \
-  --top-k 20 \
-  --min-age-gap 5 \
-  --output results.json
-```
+# Real-model integration tests (auto-skipped unless requested)
+python -m pytest tests -m integration -q
 
-**Outputs:**
-- Rank-1 / Rank-5 / Rank-10 accuracy
-- Mean Reciprocal Rank (MRR)
-- CMC Curve (Cumulative Match Characteristic)
-
----
-
-## ��� API Endpoints
-
-### Authentication
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| POST | `/auth/register` | Register new investigator |
-| POST | `/auth/login` | Get JWT access token |
-| GET | `/auth/me` | Get current user info |
-
-### Cases (Query Management)
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| POST | `/cases/photo/embedding` | Extract face embedding from photo (preview) |
-| POST | `/cases/photo/upload` | Upload photo + optionally create case |
-| POST | `/cases` | Create case with pre-computed embedding |
-| GET | `/cases` | List investigator's cases |
-| GET | `/cases/{id}` | Get case details |
-| PATCH | `/cases/{id}` | Update case |
-| DELETE | `/cases/{id}` | Soft delete case |
-
-### Search (Face Corpus)
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| POST | `/search` | Search with explicit 512-d embedding |
-| GET | `/search/case/{case_id}` | Search using stored case embedding |
-| POST | `/search/photo` | Upload photo → extract embedding → search |
-
----
-
-## ��� Testing
-
-```bash
-# Run all tests
-python -m pytest tests -v
-
-# Check code style
+# Lint / format
 python -m black --check backend tests
-python -m flake8 backend tests
+python -m flake8 backend tests --max-line-length=88
+
+# Frontend build (type-checks + bundles)
+cd frontend; npm run build
 ```
 
 ---
 
-## ��� Current Status (Day 4 Complete)
+## Evaluation & Verification
 
-| Component | Status |
-|-----------|--------|
-| Auth (JWT) | �� Done |
-| Face Detection + ArcFace Embedding | �� Done |
-| Case Management (CRUD + Photo Upload) | �� Done |
-| FaceRecord Corpus Model | �� Done |
-| IVFFlat Index + Cosine Search | �� Done |
-| Search API (3 endpoints) | �� Done |
-| Dataset Ingestion Pipeline | �� Done |
-| Cross-Age Evaluation Script | �� Done |
-| Frontend Dashboard | ��� Day 5 |
+```powershell
+# Cross-age recognition over the full corpus (607 queries, 82 persons)
+python scripts/evaluate_cross_age.py --database-url "sqlite:///pehchaanai.db"
 
----
+# Live smoke test: auth -> real model -> /search/photo -> same-person rank 1
+python scripts/smoke_search.py
+```
 
-## ��� Ethics & Scope
+Baseline results (2026-08-16, FG-NET corpus, self-exclusion protocol):
+Rank-1 23% · Rank-5 80% · **Rank-10 89.5%** · MRR 0.46. The Day-7 success
+criterion of Rank-10 > 70% is met.
 
-- **No real missing child data** — uses only public research datasets
-- **No surveillance capabilities** — single-image query → corpus search only
-- **Investigative leads only** — all matches require human review + formal verification (DNA, etc.)
-- **Access controlled** — JWT auth, users only see their own queries
-- **Audit logging** — planned
+## Performance (2026-08-16, CPU, 609-record corpus)
 
----
+| Operation | Avg | Day-7 bar | Result |
+|---|---|---|---|
+| Face detection + embedding | 0.23s | < 2s | PASS |
+| Full search (detect+embed+scan) | 0.50s | < 5s | PASS |
+| Pure cosine scan | 0.28s | — | PASS |
 
-## ��� Documentation
+Search is vectorized (single numpy matmul over all corpus embeddings).
 
-- `TODO.md` — Task tracking and sprint plan
-- `PROGRESS.md` — Daily progress log
-- `Architecture.md` — System architecture and design decisions
-- `PRD.md` — Product Requirements Document
-- `ADR.md` — Architecture Decision Records
+> **Note:** on some Windows machines `http://localhost:5173` / `:8000` can add
+> ~2s per request due to IPv6 (`::1`) loopback throttling. If the UI feels
+> slow, open `http://127.0.0.1:5173` instead — the code itself is fast.
 
 ---
 
-## ��� Contributing
+## API Reference
 
-This is a college prototype. Issues/PRs welcome for:
-- Dataset ingestion improvements
-- Evaluation methodology
-- Frontend UX
-- Performance optimization
-- Documentation
+All routes are under `/api` from the frontend (proxy) or at the backend root
+directly. Auth via `Authorization: Bearer <token>`.
+
+| Method | Path | Description |
+|---|---|---|
+| POST | `/auth/register` | Create account, returns JWT |
+| POST | `/auth/login` | Form login (`username`/`password`), returns JWT |
+| GET | `/auth/me` | Current user |
+| GET | `/health` | Liveness check |
+| GET | `/cases` | List own cases |
+| POST | `/cases` | Create case (requires 512-d `face_embedding` + `photo_path`) |
+| GET | `/cases/{id}` | Case detail |
+| PATCH | `/cases/{id}` | Update case |
+| DELETE | `/cases/{id}` | Soft-delete case |
+| POST | `/cases/photo/embedding` | Extract embedding only (strict quality) |
+| POST | `/cases/photo/upload` | Upload photo, optionally create case (`create_case=true` + `query_name`) |
+| POST | `/search` | Search by embedding (JSON body) |
+| GET | `/search/case/{id}` | Search by stored case embedding |
+| POST | `/search/photo` | Upload photo + search (**soft quality**: low-quality faces warn, don't 400) |
+| GET | `/reports/{case_id}` | Generate a rule-based investigation report |
+| GET | `/uploads/{file}` | Served case query photos |
+| GET | `/ref-images/{file}` | Served corpus reference images |
+
+Search responses include `total_records`, ranked `results`, and an optional
+`quality_warning` (set when a detected face failed the quality checks).
 
 ---
 
-## ��� License
+## Behavioral Notes
 
-MIT License — for research and educational purposes.
+- **Case creation is strict**: photos whose faces are missing, too small, or
+  low-confidence are rejected with a 400 so a bad embedding never becomes a
+  permanent case query. `/search/photo` is lenient — it returns results with a
+  `quality_warning` instead.
+- **Age progression is NOT implemented yet** (assessed; Fast-AgingGAN is the
+  recommended first integration). Reports are rule-based, not LLM-generated.
+- Interactive API docs are available at `http://localhost:8000/docs`.

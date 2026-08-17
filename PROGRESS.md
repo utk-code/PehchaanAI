@@ -1,5 +1,24 @@
 # Progress
 
+## 2026-08-16 - README rewrite + perf verification (DONE)
+
+- Rewrote README.md: accurate stack/structure/quickstart (SQLite, relative /api
+  proxy, no containers), API reference table (auth/cases/search/reports),
+  ingest + test + eval + smoke commands, behavioral notes.
+- Perf verification vs Day-7 success criteria (live, via 127.0.0.1):
+  - detection + embedding: avg 0.226s (bar <2s) PASS
+  - full search (detect+embed+scan): avg 0.50s (bar <5s) PASS
+  - pure cosine scan (609 records): avg 0.28s (bar <2s) PASS
+  - in-process full pipeline: 0.227s; /health in-process 7ms.
+- Optimization applied: search_face_records now VECTORIZED (single numpy
+  matmul over stacked embeddings) instead of 609x cosine_similarity calls
+  (~2.3s pure-Python loop -> ~20ms matmul). Tests still 107 passed.
+- IMPORTANT environment finding: on THIS machine `localhost` (IPv6 ::1) adds
+  ~2s per HTTP request (localhost:8000 and localhost:5173 both ~2.04s vs
+  127.0.0.1 16ms). Likely IPv6-loopback throttling/firewall. Use
+  http://127.0.0.1:5173 in the browser here; code itself is fast. This
+  contaminated earlier timing reads (2.2s "FAILs" were pure overhead).
+
 ## 2026-08-16 - Option C DONE: soft quality-warning for /search/photo
 
 - Problem (fixed): /search/photo returned hard 400 for images with a
