@@ -1,6 +1,6 @@
 import { useState, useCallback } from 'react';
 import { motion, useReducedMotion } from 'framer-motion';
-import { Search, Loader2, AlertCircle, Frown } from 'lucide-react';
+import { Search, Loader2, AlertCircle, AlertTriangle, Frown } from 'lucide-react';
 import { useSearchByPhoto } from '../hooks/useSearch';
 import { EASE, Stagger, StaggerItem } from '../components/motion/primitives';
 
@@ -205,6 +205,16 @@ export function SearchPage() {
                                     <p className="text-sm text-rose-300/70">
                                         {searchMutation.error instanceof Error ? searchMutation.error.message : 'An error occurred'}
                                     </p>
+                                </div>
+                            </div>
+                        )}
+
+                        {searchMutation.data?.quality_warning && (
+                            <div className="flex items-start gap-3 p-4 bg-amber-500/10 border border-amber-500/20 rounded-xl mb-4" role="alert">
+                                <AlertTriangle className="h-5 w-5 text-amber-400 flex-shrink-0 mt-0.5" />
+                                <div>
+                                    <p className="text-sm font-medium text-amber-300">Low quality face detected</p>
+                                    <p className="text-sm text-amber-300/70">{searchMutation.data.quality_warning}</p>
                                 </div>
                             </div>
                         )}

@@ -38,11 +38,13 @@ class FacePipeline:
         ctx_id: int = -1,
         min_face_pixels: int = 40,
         min_det_score: float = 0.5,
+        strict_quality: bool = True,
     ) -> None:
         self._detector = get_face_detector(ctx_id=ctx_id)
         self._embedder = get_face_embedder(ctx_id=ctx_id)
         self._min_face_pixels = min_face_pixels
         self._min_det_score = min_det_score
+        self._strict_quality = strict_quality
 
     def process_bytes(self, image_bytes: bytes) -> dict:
         """Process an uploaded image from raw bytes.
@@ -75,19 +77,28 @@ class FacePipeline:
         faces = self._detector.detect(image, max_faces=1)
         face = faces[0]
 
-        # Quality checks
+        # Quality checks. In strict mode a failing face is rejected outright;
+        # in soft mode the failure is recorded as a warning so the caller can
+        # still search with the (degraded) embedding.
         x1, y1, x2, y2 = face.bbox[:4]
         face_w = x2 - x1
         face_h = y2 - y1
+        problems: list[str] = []
         if face_w < self._min_face_pixels or face_h < self._min_face_pixels:
-            raise LowQualityFaceError(
+            problems.append(
                 f"Detected face too small ({face_w:.0f}x{face_h:.0f}px) "
                 f"for reliable matching"
             )
         if face.det_score < self._min_det_score:
-            raise LowQualityFaceError(
+            problems.append(
                 f"Face detection confidence {face.det_score:.2f} below threshold"
             )
+        if problems:
+            if self._strict_quality:
+                raise LowQualityFaceError(problems[0])
+            quality_warning = "; ".join(problems)
+        else:
+            quality_warning = None
 
         # Aligned crop is computed best-effort (used only for previews).
         try:
@@ -116,7 +127,8 @@ class FacePipeline:
             "bbox": [float(v) for v in face.bbox[:4]],
             "det_score": float(face.det_score),
             "num_faces": len(faces),
-            "quality_pass": True,
+            "quality_pass": quality_warning is None,
+            "quality_warning": quality_warning,
         }
 
     @staticmethod
@@ -143,4 +155,24 @@ def get_face_pipeline(
         ctx_id=ctx_id,
         min_face_pixels=min_face_pixels,
         min_det_score=min_det_score,
+    )
+
+
+@lru_cache(maxsize=1)
+def get_soft_face_pipeline(
+    ctx_id: int = -1,
+    min_face_pixels: int = 40,
+    min_det_score: float = 0.5,
+) -> FacePipeline:
+    """Cached singleton factory for a non-strict FacePipeline.
+
+    Returns results with a ``quality_warning`` (and ``quality_pass=False``)
+    instead of raising :class:`LowQualityFaceError`, so callers can still
+    search with a detected-but-degraded face.
+    """
+    return FacePipeline(
+        ctx_id=ctx_id,
+        min_face_pixels=min_face_pixels,
+        min_det_score=min_det_score,
+        strict_quality=False,
     )

@@ -79,7 +79,14 @@ async function request<T>(endpoint: string, options: RequestInit = {}): Promise<
     const response = await fetch(`${API_BASE_URL}${endpoint}`, { ...options, headers });
     if (!response.ok) {
         const errorData = await response.text();
-        throw new ApiError(`HTTP ${response.status}`, response.status, errorData);
+        let message = `HTTP ${response.status}`;
+        try {
+            const parsed = JSON.parse(errorData);
+            if (typeof parsed?.detail === 'string') message = parsed.detail;
+        } catch {
+            // non-JSON error body; fall back to the status message
+        }
+        throw new ApiError(message, response.status, errorData);
     }
     if (response.status === 204) return undefined as T;
     return response.json();
@@ -163,9 +170,16 @@ export const casesApi = {
     },
 };
 
+type SearchResponse = {
+    query_id?: string;
+    total_records: number;
+    results: SearchResult[];
+    quality_warning?: string;
+};
+
 export const searchApi = {
     search: (data: { face_embedding: number[]; top_k?: number; min_similarity?: number }) =>
-        request<{ query_id?: string; total_records: number; results: SearchResult[] }>('/search', {
+        request<SearchResponse>('/search', {
             method: 'POST',
             body: JSON.stringify(data),
         }),
@@ -173,7 +187,7 @@ export const searchApi = {
         const q = new URLSearchParams();
         if (params?.top_k) q.set('top_k', String(params.top_k));
         if (params?.min_similarity) q.set('min_similarity', String(params.min_similarity));
-        return request<{ query_id?: string; total_records: number; results: SearchResult[] }>(
+        return request<SearchResponse>(
             `/search/case/${caseId}${q.toString() ? `?${q}` : ''}`
         );
     },
@@ -182,7 +196,7 @@ export const searchApi = {
         formData.append('file', file);
         if (params?.top_k) formData.append('top_k', String(params.top_k));
         if (params?.min_similarity) formData.append('min_similarity', String(params.min_similarity));
-        return request<{ query_id?: string; total_records: number; results: SearchResult[] }>('/search/photo', {
+        return request<SearchResponse>('/search/photo', {
             method: 'POST',
             headers: {},
             body: formData,

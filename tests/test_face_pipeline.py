@@ -54,7 +54,13 @@ class FakeEmbedder:
         return np.ones(512, dtype=np.float32) / np.sqrt(512)
 
 
-def make_pipeline(face, aligned=None, align_raises=False, align_raise_once=False):
+def make_pipeline(
+    face,
+    aligned=None,
+    align_raises=False,
+    align_raise_once=False,
+    strict_quality=True,
+):
     pipeline = FacePipeline.__new__(FacePipeline)
     pipeline._detector = FakeDetector(
         face,
@@ -65,6 +71,7 @@ def make_pipeline(face, aligned=None, align_raises=False, align_raise_once=False
     pipeline._embedder = FakeEmbedder()
     pipeline._min_face_pixels = 40
     pipeline._min_det_score = 0.5
+    pipeline._strict_quality = strict_quality
     return pipeline
 
 
@@ -124,6 +131,40 @@ def test_process_image_rejects_low_detection_confidence() -> None:
     pipeline = make_pipeline(FakeFace(bbox=[0, 0, 100, 100], det_score=0.3))
     with pytest.raises(LowQualityFaceError, match="below threshold"):
         pipeline.process_image(fake_image())
+
+
+def test_process_image_non_strict_warns_on_undersized_face() -> None:
+    pipeline = make_pipeline(
+        FakeFace(bbox=[0, 0, 10, 10], det_score=0.99), strict_quality=False
+    )
+    result = pipeline.process_image(fake_image())
+    assert result["quality_pass"] is False
+    assert "too small" in result["quality_warning"]
+    assert len(result["embedding"]) == 512
+
+
+def test_process_image_non_strict_warns_on_low_confidence() -> None:
+    pipeline = make_pipeline(
+        FakeFace(bbox=[0, 0, 100, 100], det_score=0.3), strict_quality=False
+    )
+    result = pipeline.process_image(fake_image())
+    assert result["quality_pass"] is False
+    assert "below threshold" in result["quality_warning"]
+
+
+def test_process_image_non_strict_combines_warnings() -> None:
+    pipeline = make_pipeline(
+        FakeFace(bbox=[0, 0, 10, 10], det_score=0.3), strict_quality=False
+    )
+    result = pipeline.process_image(fake_image())
+    assert "too small" in result["quality_warning"]
+    assert "below threshold" in result["quality_warning"]
+
+
+def test_get_soft_face_pipeline_is_non_strict() -> None:
+    from backend.face.pipeline import get_soft_face_pipeline
+
+    assert get_soft_face_pipeline()._strict_quality is False
 
 
 # --------------------------------------------------------------------------- #

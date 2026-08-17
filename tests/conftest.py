@@ -18,7 +18,10 @@ os.environ["JWT_SECRET_KEY"] = "test-secret-key"
 
 from backend.database.models import Base  # noqa: E402
 from backend.database.session import get_db  # noqa: E402
-from backend.face.pipeline import get_face_pipeline  # noqa: E402
+from backend.face.pipeline import (  # noqa: E402
+    get_face_pipeline,
+    get_soft_face_pipeline,
+)
 from backend.main import app  # noqa: E402
 
 
@@ -119,6 +122,7 @@ class FakePipeline:
     def __init__(self) -> None:
         self.embedding: list[float] | None = None
         self.error: Exception | None = None
+        self.quality_warning: str | None = None
 
     def process_bytes(self, image_bytes: bytes) -> dict:
         if self.error is not None:
@@ -131,17 +135,24 @@ class FakePipeline:
             "bbox": [0.0, 0.0, 64.0, 64.0],
             "det_score": 0.99,
             "num_faces": 1,
-            "quality_pass": True,
+            "quality_pass": self.quality_warning is None,
+            "quality_warning": self.quality_warning,
         }
 
 
 @pytest.fixture(name="fake_pipeline")
 def fake_pipeline_fixture() -> Generator[FakePipeline, None, None]:
-    """Override the face pipeline dependency with a configurable fake."""
+    """Override the face pipeline dependencies with a configurable fake.
+
+    Covers both the strict pipeline (case upload/embedding) and the soft
+    pipeline (/search/photo), so tests never load the real InsightFace model.
+    """
     pipeline = FakePipeline()
     app.dependency_overrides[get_face_pipeline] = lambda: pipeline
+    app.dependency_overrides[get_soft_face_pipeline] = lambda: pipeline
     yield pipeline
     app.dependency_overrides.pop(get_face_pipeline, None)
+    app.dependency_overrides.pop(get_soft_face_pipeline, None)
 
 
 @pytest.fixture(name="auth_token")

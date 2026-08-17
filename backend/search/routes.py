@@ -13,7 +13,7 @@ from backend.face.exceptions import (
     LowQualityFaceError,
     NoFaceFoundError,
 )
-from backend.face.pipeline import FacePipeline, get_face_pipeline
+from backend.face.pipeline import FacePipeline, get_soft_face_pipeline
 from backend.search.schemas import SearchRequest, SearchResponse
 from backend.search.service import search_by_case, search_face_records
 
@@ -104,10 +104,16 @@ async def search_by_photo(
     min_similarity: float = 0.3,
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
-    pipeline: FacePipeline = Depends(get_face_pipeline),
+    pipeline: FacePipeline = Depends(get_soft_face_pipeline),
     request: Request = None,
 ) -> SearchResponse:
-    """Upload a photo, extract face embedding, then search the face corpus."""
+    """Upload
+    a photo, extract a face embedding, and search the corpus.
+
+    Uses the non-strict pipeline: a detected-but-low-quality face produces a
+    ``quality_warning`` on the response instead of a 400. A photo with no
+    detectable face (or an undecodable image) is still rejected with a 400.
+    """
     from backend.cases.routes import _validate_image_file
 
     _validate_image_file(file)
@@ -137,4 +143,5 @@ async def search_by_photo(
         top_k=top_k,
         min_similarity=min_similarity,
     )
+    response.quality_warning = result.get("quality_warning")
     return _rewrite_photo_urls(response, request)

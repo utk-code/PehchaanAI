@@ -22,7 +22,7 @@ from sqlalchemy.orm import Session, sessionmaker
 
 from backend.database.models import Base
 from backend.database.session import get_db
-from backend.face.pipeline import FacePipeline, get_face_pipeline
+from backend.face.pipeline import FacePipeline, get_soft_face_pipeline
 from backend.main import app
 from backend.search.service import search_face_records
 
@@ -109,7 +109,7 @@ def integration_client(
             db.close()
 
     app.dependency_overrides[get_db] = override_get_db
-    app.dependency_overrides[get_face_pipeline] = lambda: real_pipeline
+    app.dependency_overrides[get_soft_face_pipeline] = lambda: real_pipeline
     with TestClient(app) as test_client:
         yield test_client
     app.dependency_overrides.clear()

@@ -35,6 +35,13 @@ class SearchResponse(BaseModel):
     results: list[SearchResult] = Field(
         description="Ranked candidate matches by similarity"
     )
+    quality_warning: Optional[str] = Field(
+        default=None,
+        description=(
+            "Set when the query face was detected but failed the quality "
+            "checks; results may be unreliable"
+        ),
+    )
 
 
 class SearchRequest(BaseModel):

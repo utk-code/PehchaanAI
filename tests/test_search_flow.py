@@ -20,11 +20,7 @@ from fastapi.testclient import TestClient
 # provided by tests/conftest.py
 
 from backend.database.models import FaceRecord
-from backend.face.exceptions import (
-    FaceDetectionError,
-    LowQualityFaceError,
-    NoFaceFoundError,
-)
+from backend.face.exceptions import FaceDetectionError, NoFaceFoundError
 from backend.search.service import search_by_case, search_face_records
 
 EMBEDDING_DIM = 512
@@ -384,15 +380,17 @@ def test_e2e_search_photo_no_face_returns_400(
     assert "No face detected" in response.json()["detail"]
 
 
-def test_e2e_search_photo_low_quality_returns_400(
+def test_e2e_search_photo_low_quality_warns_and_searches(
     client: TestClient,
     auth_headers: dict[str, str],
     db_session,
     fake_pipeline,
 ) -> None:
-    """Searching a low-quality face returns a 400 with quality detail."""
-    seed_corpus(db_session, build_corpus())
-    fake_pipeline.error = LowQualityFaceError("Detected face too small")
+    """A detected-but-low-quality face searches anyway and warns."""
+    corpus = build_corpus()
+    seed_corpus(db_session, corpus)
+    fake_pipeline.embedding = query_embedding(corpus)
+    fake_pipeline.quality_warning = "Face detection confidence 0.31 below threshold"
 
     with open("test_images/lenna.png", "rb") as image_file:
         response = client.post(
@@ -400,8 +398,11 @@ def test_e2e_search_photo_low_quality_returns_400(
             files={"file": ("lenna.png", image_file, "image/png")},
             headers=auth_headers,
         )
-    assert response.status_code == 400
-    assert "Face quality check failed" in response.json()["detail"]
+    assert response.status_code == 200
+    data = response.json()
+    assert "below threshold" in data["quality_warning"]
+    assert data["results"]
+    assert data["results"][0]["person_id"] == "person_A"
 
 
 def test_e2e_search_photo_detection_error_returns_400(

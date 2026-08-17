@@ -1,5 +1,34 @@
 # Progress
 
+## 2026-08-16 - Option C DONE: soft quality-warning for /search/photo
+
+- Problem (fixed): /search/photo returned hard 400 for images with a
+  detected-but-low-quality face; UI showed generic "Search failed" (ApiError
+  carried only status, backend detail discarded).
+- Behavior now (per user choice C + sub-option a):
+  - Detected face that fails quality checks -> search RUNS anyway; response
+    carries quality_warning (e.g. "face too small (33x39px)") + quality_pass=false.
+  - Hard 400 ONLY when no face at all or decode failure. No lower floor.
+  - /cases/photo/upload + /cases/photo/embedding stay STRICT (400 on low quality)
+    so bad embeddings never become stored case queries.
+- Changes:
+  - pipeline.py: FacePipeline(strict_quality=False) skips LowQualityFaceError,
+    sets result["quality_warning"] (combined size+conf messages); cached
+    get_soft_face_pipeline(); get_face_pipeline untouched (strict).
+  - search/routes.py: search_by_photo now Depends(get_soft_face_pipeline);
+    attaches quality_warning to SearchResponse. schemas.py: SearchResponse
+    .quality_warning: Optional[str]=None (backward compatible).
+  - frontend: api.ts parses JSON error body -> ApiError.message = detail (real
+    reason now shown); SearchResponse type + quality_warning; SearchPage amber
+    warning banner + real 400 message; CaseDetail already shows error.message.
+  - tests: conftest FakePipeline quality_warning knob + override BOTH pipeline
+    factories; test_search_flow low-quality -> 200+warning (was 400); pipeline
+    non-strict tests (undersized/low-conf/combined/factory); integration test
+    override -> get_soft_face_pipeline.
+- Verified: 107 passed / 3 integration passed / npm build / black+flake8 clean.
+  Live: good photo 200 no warning (20 results); tiny face 200 + warning; no-face
+  blank image 400 "No face detected above confidence threshold".
+
 ## 2026-08-16 - Real Reports endpoint + age-progression feasibility (DONE)
 
 - Added rule-based investigation report feature (no LLM/API key needed):
