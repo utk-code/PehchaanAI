@@ -39,9 +39,12 @@ export function CaseListPage() {
 
     return (
         <div className="space-y-6">
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
                 <div>
-                    <h1 className="text-2xl lg:text-3xl font-display font-bold text-white tracking-tight">Cases</h1>
+                    <div className="flex items-center gap-2 mb-1">
+                        <span className="mono-label">Case Registry</span>
+                    </div>
+                    <h1 className="text-3xl lg:text-4xl font-display font-bold text-white tracking-tight leading-none">Cases</h1>
                     <p className="mt-1 text-white/50 text-sm">Manage your investigation cases</p>
                 </div>
                 <Link
@@ -64,15 +67,15 @@ export function CaseListPage() {
                         className="w-full pl-10 pr-4 py-2.5 bg-white/5 border border-white/10 rounded-xl text-white placeholder:text-white/30 focus:outline-none focus:ring-2 focus:ring-brand-500/40 focus:border-brand-500/50 transition-all text-sm"
                     />
                 </div>
-                <div className="flex items-center gap-1 bg-white/5 border border-white/10 rounded-xl p-1">
+                <div className="flex items-center gap-1 bg-white/[0.04] border border-white/10 rounded-lg p-1">
                     {statusTabs.map((tab) => (
                         <button
                             key={tab.value}
                             onClick={() => setStatusFilter(tab.value)}
-                            className={`px-4 py-1.5 rounded-lg text-sm font-medium transition-colors ${
+                            className={`px-4 py-1.5 rounded-md text-sm font-medium transition-colors ${
                                 statusFilter === tab.value
-                                    ? 'bg-brand-500/20 text-brand-300'
-                                    : 'text-white/50 hover:text-white'
+                                    ? 'bg-gradient-to-r from-brand-500 to-violet-600 text-white shadow-glow-brand'
+                                    : 'text-white/50 hover:text-white hover:bg-white/5'
                             }`}
                         >
                             {tab.label}
@@ -84,11 +87,11 @@ export function CaseListPage() {
             {isLoading ? (
                 <div className="space-y-3">
                     {[1, 2, 3, 4, 5].map((i) => (
-                        <div key={i} className="h-20 bg-white/[0.03] border border-white/5 rounded-2xl animate-pulse" />
+                        <div key={i} className="h-20 bg-white/[0.03] border border-white/5 rounded-xl animate-pulse" />
                     ))}
                 </div>
             ) : error ? (
-                <div className="flex flex-col items-center justify-center py-16 text-center card-glass rounded-2xl">
+                <div className="flex flex-col items-center justify-center py-16 text-center card-glass rounded-xl">
                     <AlertCircle className="h-12 w-12 text-rose-400/50" />
                     <h3 className="mt-4 text-lg font-semibold text-white/80">Failed to load cases</h3>
                     <p className="mt-2 text-white/40 text-sm">{error instanceof Error ? error.message : 'An unexpected error occurred'}</p>
@@ -100,8 +103,8 @@ export function CaseListPage() {
                     </button>
                 </div>
             ) : !filteredCases || filteredCases.length === 0 ? (
-                <div className="flex flex-col items-center justify-center py-16 text-center card-glass rounded-2xl">
-                    <div className="h-14 w-14 rounded-2xl bg-white/5 flex items-center justify-center mb-4">
+                <div className="flex flex-col items-center justify-center py-16 text-center card-glass rounded-xl">
+                    <div className="h-14 w-14 rounded-xl bg-white/5 flex items-center justify-center mb-4">
                         <Users className="h-6 w-6 text-white/30" />
                     </div>
                     <h3 className="text-lg font-semibold text-white/80">
@@ -128,7 +131,7 @@ export function CaseListPage() {
                         <StaggerItem key={caseItem.id}>
                             <Link
                                 to={`/cases/${caseItem.id}`}
-                                className="group card-glass rounded-2xl p-5 block hover:bg-white/[0.05] hover:border-white/15 transition-all duration-200"
+                                className="group card-glass rounded-xl p-5 block tick-corners hover:bg-white/[0.05] hover:border-white/15 hover:-translate-y-0.5 transition-all duration-200"
                             >
                                 <div className="flex items-start justify-between gap-4">
                                     <div className="flex-1 min-w-0">

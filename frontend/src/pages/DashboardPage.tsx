@@ -79,24 +79,30 @@ export function DashboardPage() {
         <div className="space-y-8 relative">
             {/* Hero */}
             <div className="relative">
-                <div className="absolute -top-10 right-0 w-72 h-72 bg-brand-500/10 rounded-full blur-[100px] pointer-events-none" />
-                <div className="absolute bottom-0 left-1/3 w-64 h-64 bg-cyan-500/5 rounded-full blur-[80px] pointer-events-none" />
+                <div className="absolute -top-10 right-0 w-72 h-72 rounded-full border border-brand-500/15 blur-[30px] pointer-events-none" />
+                <div className="absolute bottom-0 left-1/3 w-64 h-64 rounded-full border border-cyan-400/10 blur-[24px] pointer-events-none" />
 
                 <motion.div
                     initial={reducedMotion ? false : { opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.7, ease: EASE }}
                 >
-                    <div className="flex items-center gap-2 mb-3">
-                        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-400/10 text-emerald-300 text-xs font-medium">
-                            <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                    <div className="flex items-center gap-3 mb-3">
+                        <span className="inline-flex items-center gap-2 px-2.5 py-1 rounded-md bg-emerald-400/10 text-emerald-300 text-xs font-medium font-mono uppercase tracking-widest">
+                            <span className="relative flex h-2 w-2">
+                                <span className="absolute inset-0 rounded-full bg-emerald-400 animate-ping" />
+                                <span className="relative rounded-full bg-emerald-400 w-2 h-2" />
+                            </span>
                             Welcome back
                         </span>
+                        <span className="font-mono text-[10px] tracking-[0.25em] uppercase text-white/30">
+                            /OPERATIVE {firstName.toUpperCase()}
+                        </span>
                     </div>
-                    <h1 className="text-3xl lg:text-4xl font-display font-bold text-white tracking-tight">
+                    <h1 className="text-4xl lg:text-6xl font-display font-bold text-white tracking-tight leading-none">
                         {firstName}
                     </h1>
-                    <p className="mt-2 text-white/50 max-w-xl text-sm lg:text-base">
+                    <p className="mt-3 text-white/50 max-w-xl text-sm lg:text-base">
                         Your investigation workspace is ready. Track cases, search the database, and identify matches.
                     </p>
                 </motion.div>
@@ -106,11 +112,11 @@ export function DashboardPage() {
             <Stagger className="grid grid-cols-2 lg:grid-cols-4 gap-4" staggerDelay={0.06}>
                 {stats.map((stat) => (
                     <StaggerItem key={stat.label}>
-                        <div className="group card-glass rounded-2xl p-5 hover:bg-white/[0.05] transition-colors duration-200">
+                        <div className="group card-glass rounded-xl p-5 tick-corners hover:bg-white/[0.05] hover:-translate-y-0.5 transition-all duration-200">
                             <div className="flex items-start justify-between">
                                 <div>
-                                    <p className="text-sm text-white/40">{stat.label}</p>
-                                    <p className="mt-2 text-3xl font-display font-bold text-white">
+                                    <p className="font-mono text-[10px] uppercase tracking-widest text-white/40">{stat.label}</p>
+                                    <p className="mt-2 text-4xl font-display font-bold text-white">
                                         {isLoading ? (
                                             <span className="inline-block h-8 w-12 bg-white/10 rounded-md animate-pulse" />
                                         ) : (
@@ -130,16 +136,16 @@ export function DashboardPage() {
             {/* Quick actions */}
             <div>
                 <div className="flex items-center justify-between mb-4">
-                    <h2 className="text-sm font-medium tracking-wide text-white/50 uppercase">Quick actions</h2>
+                    <h2 className="mono-label">Quick Actions</h2>
                 </div>
                 <Stagger className="grid grid-cols-1 sm:grid-cols-3 gap-4" staggerDelay={0.05}>
                     {quickActions.map((action) => (
                         <StaggerItem key={action.to}>
                             <Link
                                 to={action.to}
-                                className="group flex items-center gap-4 card-glass rounded-2xl p-5 hover:bg-white/[0.05] hover:-translate-y-0.5 transition-all duration-200"
+                                className="group flex items-center gap-4 card-glass rounded-xl p-5 tick-corners hover:bg-white/[0.05] hover:-translate-y-0.5 transition-all duration-200"
                             >
-                                <div className={`p-3 rounded-xl bg-gradient-to-br ${action.gradient} group-hover:scale-105 transition-transform duration-200`}>
+                                <div className={`p-3 rounded-lg bg-gradient-to-br ${action.gradient} group-hover:scale-105 transition-transform duration-200`}>
                                     <action.icon className="h-5 w-5 text-white" />
                                 </div>
                                 <div className="flex-1">
@@ -159,13 +165,16 @@ export function DashboardPage() {
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 {/* Cases overview */}
                 <Reveal delay={0.1} className="lg:col-span-1">
-                    <div className="card-glass rounded-2xl p-6 h-full">
+                    <div className="card-glass rounded-xl p-6 h-full tick-corners">
                         <div className="flex items-center justify-between mb-6">
                             <div className="flex items-center gap-2">
                                 <Activity className="h-4 w-4 text-brand-400" />
                                 <h2 className="font-display font-semibold text-white">Overview</h2>
                             </div>
-                            <span className="text-xs text-white/40">Live</span>
+                            <span className="flex items-center gap-1.5 font-mono text-[10px] uppercase tracking-widest text-white/40">
+                                <span className="beacon-dot" />
+                                Live
+                            </span>
                         </div>
 
                         {error ? (
@@ -240,7 +249,7 @@ export function DashboardPage() {
 
                 {/* Recent cases */}
                 <Reveal delay={0.15} className="lg:col-span-2">
-                    <div className="card-glass rounded-2xl p-6 h-full">
+                    <div className="card-glass rounded-xl p-6 h-full tick-corners-cyan tick-corners">
                         <div className="flex items-center justify-between mb-6">
                             <div className="flex items-center gap-2">
                                 <Clock className="h-4 w-4 text-violet-400" />
@@ -308,7 +317,7 @@ export function DashboardPage() {
                             </div>
                         ) : (
                             <div className="flex flex-col items-center justify-center py-12 text-center">
-                                <div className="h-14 w-14 rounded-2xl bg-white/5 flex items-center justify-center mb-4">
+                                <div className="h-14 w-14 rounded-xl bg-white/5 flex items-center justify-center mb-4">
                                     <FileSearch className="h-6 w-6 text-white/30" />
                                 </div>
                                 <p className="text-white/60 font-medium">No cases yet</p>
@@ -328,7 +337,7 @@ export function DashboardPage() {
 
             {/* Development progress */}
             <Reveal delay={0.2}>
-                <div className="card-glass rounded-2xl p-6">
+                <div className="card-glass rounded-xl p-6">
                     <div className="flex items-center gap-2 mb-6">
                         <TrendingUp className="h-4 w-4 text-amber-400" />
                         <h2 className="font-display font-semibold text-white">Development Progress</h2>

@@ -102,10 +102,13 @@ export function ReportsPage() {
     return (
         <div className="space-y-6">
             <div>
-                <h1 className="text-2xl lg:text-3xl font-display font-bold text-white tracking-tight">
+                <div className="flex items-center gap-2 mb-1">
+                    <span className="mono-label">Intelligence / Findings</span>
+                </div>
+                <h1 className="text-3xl lg:text-4xl font-display font-bold text-white tracking-tight leading-none">
                     AI Reports
                 </h1>
-                <p className="mt-1 text-white/50 text-sm">
+                <p className="mt-2 text-white/50 text-sm">
                     Generate investigation reports from case results and search data
                 </p>
             </div>
@@ -117,7 +120,7 @@ export function ReportsPage() {
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.6, ease: EASE }}
                 >
-                    <div className="card-glass rounded-2xl p-6 h-full flex flex-col">
+                    <div className="card-glass rounded-xl p-6 h-full flex flex-col tick-corners">
                         <h2 className="font-display font-semibold text-white mb-4">Select Case</h2>
 
                         <div className="flex-1 space-y-2 overflow-y-auto max-h-80">
@@ -173,7 +176,7 @@ export function ReportsPage() {
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.6, ease: EASE, delay: 0.1 }}
                 >
-                    <div className="card-glass rounded-2xl p-6">
+                    <div className="card-glass rounded-xl p-6 tick-corners">
                         <div className="flex items-center justify-between mb-4">
                             <h2 className="font-display font-semibold text-white">Report Preview</h2>
                             {report && (
@@ -269,7 +272,7 @@ export function ReportsPage() {
                             </div>
                         ) : (
                             <div className="flex flex-col items-center justify-center py-16 text-center">
-                                <div className="h-14 w-14 rounded-2xl bg-white/5 flex items-center justify-center mb-4">
+                                <div className="h-14 w-14 rounded-xl bg-white/5 flex items-center justify-center mb-4">
                                     <FileText className="h-6 w-6 text-white/30" />
                                 </div>
                                 <h3 className="text-lg font-semibold text-white/80">

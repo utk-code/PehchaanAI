@@ -43,41 +43,57 @@ export function LoginPage() {
 
     return (
         <div className="min-h-screen bg-atmosphere relative flex items-center justify-center p-4 overflow-hidden">
-            <div className="absolute top-20 left-10 w-72 h-72 bg-brand-500/10 rounded-full blur-3xl animate-float" />
-            <div className="absolute bottom-20 right-10 w-96 h-96 bg-cyan-500/10 rounded-full blur-3xl animate-float-slow" />
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-violet-500/10 rounded-full blur-3xl" />
+            <div className="grain" aria-hidden />
+            <div className="absolute inset-0 bg-grid opacity-60" aria-hidden />
+            <div className="absolute top-24 -left-24 w-96 h-96 rounded-full border border-brand-500/15 animate-float" />
+            <div className="absolute -bottom-32 right-0 w-[520px] h-[520px] rounded-full border border-cyan-400/10 animate-float-slow" />
+            <div className="absolute top-1/3 right-[12%] w-24 h-24 rounded-full border border-brand-500/25" />
+            <div className="absolute bottom-[18%] left-[14%] w-2 h-2 bg-brand-500 rounded-full animate-pulse-ring" />
+
+            <div className="absolute top-6 left-6 font-mono text-[10px] tracking-[0.3em] uppercase text-white/30 pointer-events-none">
+                PCHN-2026 / Secure Channel
+            </div>
+            <div className="absolute top-6 right-6 flex items-center gap-2 font-mono text-[10px] tracking-[0.2em] uppercase text-white/30 pointer-events-none">
+                <span className="beacon-dot" />
+                System Online
+            </div>
 
             <motion.div
-                className="w-full max-w-md relative z-10"
+                className="w-full max-w-lg relative z-10"
                 {...fadeUp(0)}
             >
                 <div className="text-center mb-8">
                     <motion.div
-                        className="inline-flex items-center gap-3 mb-4"
+                        className="inline-flex items-center gap-3 mb-5"
                         {...fadeUp(0.1)}
                     >
-                        <div className="h-12 w-12 rounded-2xl bg-gradient-to-br from-brand-500 to-violet-600 flex items-center justify-center shadow-glow-brand">
-                            <ShieldCheck className="h-6 w-6 text-white" />
+                        <div className="relative">
+                            <span className="absolute inset-0 rounded-xl bg-brand-500/40 animate-pulse-ring" />
+                            <div className="relative h-14 w-14 rounded-xl bg-gradient-to-br from-brand-500 to-violet-600 flex items-center justify-center shadow-glow-brand">
+                                <ShieldCheck className="h-7 w-7 text-white" />
+                            </div>
                         </div>
                     </motion.div>
                     <motion.h1
-                        className="text-3xl font-display font-bold text-white tracking-tight"
+                        className="text-4xl sm:text-5xl font-display font-bold text-white tracking-tight"
                         {...fadeUp(0.15)}
                     >
-                        PehchaanAI
+                        Pehchaan<span className="text-gradient">AI</span>
                     </motion.h1>
                     <motion.p
-                        className="mt-2 text-white/50"
+                        className="mt-3 font-mono text-[11px] tracking-[0.28em] uppercase text-white/45"
                         {...fadeUp(0.2)}
                     >
-                        Sign in to your investigation workspace
+                        Sign in to the investigation workspace
+                        <span className="terminal-caret" aria-hidden />
                     </motion.p>
                 </div>
 
                 <motion.div
-                    className="card-glass-elevated rounded-2xl p-8"
+                    className="card-glass-elevated rounded-xl p-8 tick-corners relative"
                     {...fadeUp(0.25)}
                 >
+                    <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-brand-500/0 via-brand-500/60 to-cyan-400/0" aria-hidden />
                     <form onSubmit={handleSubmit} className="space-y-5">
                         {error && (
                             <motion.div

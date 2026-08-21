@@ -14,9 +14,14 @@ export function ProtectedRoute({ children }: ProtectedRouteProps) {
     if (isLoading) {
         return (
             <div className="flex items-center justify-center min-h-screen bg-atmosphere">
-                <div className="animate-pulse flex flex-col items-center gap-4">
-                    <div className="h-8 w-8 rounded-full bg-gradient-to-r from-brand-500 to-violet-600"></div>
-                    <p className="text-white/50 text-sm">Loading...</p>
+                <div className="flex flex-col items-center gap-4">
+                    <div className="relative">
+                        <span className="absolute inset-0 rounded-lg bg-brand-500/40 animate-pulse-ring" />
+                        <div className="relative h-10 w-10 rounded-lg bg-gradient-to-br from-brand-500 to-violet-600 shadow-glow-brand"></div>
+                    </div>
+                    <p className="font-mono text-[10px] tracking-[0.28em] uppercase text-white/45">
+                        Verifying session<span className="terminal-caret" aria-hidden />
+                    </p>
                 </div>
             </div>
         );

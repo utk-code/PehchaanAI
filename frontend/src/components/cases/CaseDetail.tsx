@@ -74,7 +74,7 @@ export function CaseDetail() {
 
     if (caseError || !caseData) {
         return (
-            <div className="card-glass rounded-2xl p-8">
+            <div className="card-glass rounded-xl p-8">
                 <div className="flex flex-col items-center justify-center py-12 text-center">
                     <AlertCircle className="h-12 w-12 text-rose-400/50" />
                     <h3 className="mt-4 text-lg font-semibold text-white/80">Case not found</h3>
@@ -102,11 +102,12 @@ export function CaseDetail() {
                 <div className="flex-1">
                     <Link
                         to="/cases"
-                        className="inline-flex items-center gap-1.5 text-sm text-white/50 hover:text-white/80 transition-colors mb-3"
+                        className="inline-flex items-center gap-1.5 text-sm text-white/50 hover:text-white/80 transition-colors mb-2"
                     >
                         <ArrowLeft className="h-4 w-4" />
                         Back to Cases
                     </Link>
+                    <div className="mono-label mb-1">Case Dossier / {caseData.id.slice(0, 8).toUpperCase()}</div>
                     <div className="flex items-center gap-3">
                         <h1 className="text-2xl lg:text-3xl font-display font-bold text-white tracking-tight">
                             {caseData.query_name || 'Unnamed Case'}
@@ -145,7 +146,7 @@ export function CaseDetail() {
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.6, ease: EASE }}
                 >
-                    <div className="card-glass rounded-2xl p-6">
+                    <div className="card-glass rounded-xl p-6">
                         <div className="flex items-center justify-between mb-4">
                             <h2 className="font-display font-semibold text-white">Search Results</h2>
                             {searchData && (
@@ -175,7 +176,7 @@ export function CaseDetail() {
 
                         {!searchLoading && !searchError && results.length === 0 && (
                             <div className="flex flex-col items-center justify-center py-12 text-center">
-                                <div className="h-14 w-14 rounded-2xl bg-white/5 flex items-center justify-center mb-4">
+                                <div className="h-14 w-14 rounded-xl bg-white/5 flex items-center justify-center mb-4">
                                     <Search className="h-6 w-6 text-white/30" />
                                 </div>
                                 <h3 className="text-lg font-semibold text-white/80">No matches found</h3>
@@ -228,7 +229,7 @@ export function CaseDetail() {
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.6, ease: EASE, delay: 0.1 }}
                 >
-                    <div className="card-glass rounded-2xl p-6">
+                    <div className="card-glass rounded-xl p-6">
                         <h2 className="font-display font-semibold text-white mb-4">Query Image</h2>
 
                         <div className="aspect-square bg-white/5 rounded-xl overflow-hidden flex items-center justify-center mb-4">

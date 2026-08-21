@@ -68,8 +68,11 @@ export function SearchPage() {
             <div className="absolute bottom-20 right-1/4 w-64 h-64 bg-cyan-500/10 rounded-full blur-[60px] pointer-events-none" />
 
             <div className="relative">
-                <h1 className="text-2xl lg:text-3xl font-display font-bold text-white tracking-tight">Quick Search</h1>
-                <p className="mt-1 text-white/50 text-sm">Search the face database without creating a case</p>
+                <div className="flex items-center gap-2 mb-1">
+                    <span className="mono-label">Face Registry / Query</span>
+                </div>
+                <h1 className="text-3xl lg:text-4xl font-display font-bold text-white tracking-tight leading-none">Quick Search</h1>
+                <p className="mt-2 text-white/50 text-sm">Search the face database without creating a case</p>
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 relative">
@@ -79,11 +82,14 @@ export function SearchPage() {
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.6, ease: EASE }}
                 >
-                    <div className="card-glass rounded-2xl p-6 space-y-5">
-                        <h2 className="font-display font-semibold text-white">Upload Photo</h2>
+                    <div className="card-glass rounded-xl p-6 space-y-5 tick-corners">
+                        <div className="flex items-center justify-between">
+                            <h2 className="font-display font-semibold text-white">Upload Photo</h2>
+                            <span className="mono-label">Signal Input</span>
+                        </div>
 
                         <label
-                            className={`relative flex flex-col items-center justify-center border-2 border-dashed rounded-2xl p-8 cursor-pointer transition-colors ${
+                            className={`relative flex flex-col items-center justify-center border-2 border-dashed rounded-xl p-8 cursor-pointer transition-colors ${
                                 previewUrl ? 'border-brand-500/40 bg-brand-500/5' : 'border-white/10 hover:border-white/20'
                             }`}
                         >
@@ -104,7 +110,7 @@ export function SearchPage() {
                                 </>
                             ) : (
                                 <>
-                                    <div className="h-14 w-14 rounded-2xl bg-white/5 flex items-center justify-center mb-4">
+                                    <div className="h-14 w-14 rounded-xl bg-white/5 flex items-center justify-center mb-4">
                                         <Search className="h-6 w-6 text-white/40" />
                                     </div>
                                     <p className="text-sm font-medium text-white/70">Drop an image here</p>
@@ -176,7 +182,7 @@ export function SearchPage() {
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.6, ease: EASE, delay: 0.1 }}
                 >
-                    <div className="card-glass rounded-2xl p-6 h-full">
+                    <div className="card-glass rounded-xl p-6 h-full tick-corners">
                         <div className="flex items-center justify-between mb-4">
                             <h2 className="font-display font-semibold text-white">Search Results</h2>
                             {searchMutation.data && (
@@ -221,7 +227,7 @@ export function SearchPage() {
 
                         {!searchMutation.isPending && !searchMutation.isError && results.length === 0 && !file && (
                             <div className="flex flex-col items-center justify-center py-16 text-center">
-                                <div className="h-14 w-14 rounded-2xl bg-white/5 flex items-center justify-center mb-4">
+                                <div className="h-14 w-14 rounded-xl bg-white/5 flex items-center justify-center mb-4">
                                     <Search className="h-6 w-6 text-white/30" />
                                 </div>
                                 <h3 className="text-lg font-semibold text-white/80">No search performed</h3>
@@ -231,7 +237,7 @@ export function SearchPage() {
 
                         {!searchMutation.isPending && !searchMutation.isError && results.length === 0 && file && (
                             <div className="flex flex-col items-center justify-center py-16 text-center">
-                                <div className="h-14 w-14 rounded-2xl bg-white/5 flex items-center justify-center mb-4">
+                                <div className="h-14 w-14 rounded-xl bg-white/5 flex items-center justify-center mb-4">
                                     <Frown className="h-6 w-6 text-amber-400/60" />
                                 </div>
                                 <h3 className="text-lg font-semibold text-white/80">No matches found</h3>

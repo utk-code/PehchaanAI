@@ -65,10 +65,11 @@
 - [x] Test End-to-End search flow (97 backend tests, 99% coverage)
 
 ### Day 6: Documentation & Polish
-- [ ] Complete README with usage instructions
-- [ ] Add API documentation
-- [ ] Performance testing and optimization
-- [ ] UI polish
+- [x] Complete README with usage instructions (rewrote: stack, structure, quickstart, testing, eval, perf)
+- [x] Add API documentation (rewrote API.md to match the real backend routes)
+- [x] Performance testing and optimization (vectorized search, targets met — see PROGRESS.md)
+- [x] UI polish (dark glassmorphism redesign; Playwright-verified desktop/mobile)
+- [x] Update for_user.md to reflect the finished core system
 
 ---
 

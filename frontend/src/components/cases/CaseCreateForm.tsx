@@ -174,7 +174,7 @@ export function CaseCreateForm() {
 
     if (step === 'success') {
         return (
-            <div className="card-glass rounded-2xl p-8">
+            <div className="card-glass rounded-xl p-8 tick-corners">
                 <div className="text-center py-8">
                     <motion.div
                         initial={reducedMotion ? false : { scale: 0.5, opacity: 0 }}
@@ -206,25 +206,28 @@ export function CaseCreateForm() {
     }
 
     return (
-        <div className="card-glass rounded-2xl p-6 lg:p-8">
-            <div className="flex items-center gap-2 mb-2">
-                {stepLabels.map((label, i) => {
-                    const currentIdx = step === 'upload' ? 0 : step === 'details' ? 1 : 2;
-                    const isDone = i < currentIdx;
-                    const isCurrent = i === currentIdx;
-                    return (
-                        <div key={label} className="flex items-center gap-2">
-                            {i > 0 && <div className={`h-px w-8 ${isDone || isCurrent ? 'bg-brand-400' : 'bg-white/10'}`} />}
-                            <span
-                                className={`text-xs font-medium ${
-                                    isCurrent ? 'text-brand-300' : isDone ? 'text-emerald-400' : 'text-white/30'
-                                }`}
-                            >
-                                {label}
-                            </span>
-                        </div>
-                    );
-                })}
+        <div className="card-glass rounded-xl p-6 lg:p-8 tick-corners">
+            <div className="flex items-center justify-between mb-2">
+                <div className="flex items-center gap-2">
+                    {stepLabels.map((label, i) => {
+                        const currentIdx = step === 'upload' ? 0 : step === 'details' ? 1 : 2;
+                        const isDone = i < currentIdx;
+                        const isCurrent = i === currentIdx;
+                        return (
+                            <div key={label} className="flex items-center gap-2">
+                                {i > 0 && <div className={`h-px w-8 ${isDone || isCurrent ? 'bg-brand-400' : 'bg-white/10'}`} />}
+                                <span
+                                    className={`text-xs font-medium ${
+                                        isCurrent ? 'text-brand-300' : isDone ? 'text-emerald-400' : 'text-white/30'
+                                    }`}
+                                >
+                                    {label}
+                                </span>
+                            </div>
+                        );
+                    })}
+                </div>
+                <span className="mono-label hidden sm:inline">Intake / Case Registry</span>
             </div>
             <p className="text-sm text-white/40 mb-6">
                 {step === 'upload' && 'Upload a photo of the missing child to begin'}
@@ -253,7 +256,7 @@ export function CaseCreateForm() {
                             exit={{ opacity: 0, y: -10 }}
                             transition={{ duration: 0.3, ease: EASE }}
                         >
-                            <label className="flex flex-col items-center justify-center border-2 border-dashed rounded-2xl p-10 cursor-pointer transition-colors hover:border-white/20 border-white/10">
+                            <label className="flex flex-col items-center justify-center border-2 border-dashed rounded-xl p-10 cursor-pointer transition-colors hover:border-white/20 border-white/10">
                                 <input
                                     type="file"
                                     accept="image/jpeg,image/png,image/webp"
@@ -267,7 +270,7 @@ export function CaseCreateForm() {
                                     </>
                                 ) : (
                                     <>
-                                        <div className="h-14 w-14 rounded-2xl bg-white/5 flex items-center justify-center mb-4">
+                                        <div className="h-14 w-14 rounded-xl bg-white/5 flex items-center justify-center mb-4">
                                             <UploadCloud className="h-6 w-6 text-white/40" />
                                         </div>
                                         <p className="text-sm font-medium text-white/70">Drop an image here</p>

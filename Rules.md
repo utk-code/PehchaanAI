@@ -129,7 +129,7 @@ POST   /api/cases/{id}/search  # Trigger search
 
 ### 6.1 Authentication
 - All endpoints except `/auth/login` and `/auth/register` require JWT
-- Tokens expire after 8 hours
+- Tokens expire after 60 minutes (configurable via `ACCESS_TOKEN_EXPIRE_MINUTES`)
 
 ### 6.2 File Upload Rules
 - Allowed formats: JPG, PNG only

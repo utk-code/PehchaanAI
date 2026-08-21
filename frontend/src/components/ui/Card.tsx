@@ -4,10 +4,11 @@ interface CardProps extends HTMLAttributes<HTMLDivElement> {
     variant?: 'default' | 'outlined' | 'elevated' | 'glass';
     padding?: 'none' | 'sm' | 'md' | 'lg';
     hover?: boolean;
+    ticks?: boolean;
 }
 
 export const Card = forwardRef<HTMLDivElement, CardProps>(
-    ({ className = '', variant = 'glass', padding = 'md', hover = false, children, ...props }, ref) => {
+    ({ className = '', variant = 'glass', padding = 'md', hover = false, ticks = false, children, ...props }, ref) => {
         const variantStyles = {
             default: 'bg-white/5 border border-white/10',
             outlined: 'bg-transparent border border-white/15',
@@ -28,8 +29,9 @@ export const Card = forwardRef<HTMLDivElement, CardProps>(
                 className={`
                     ${variantStyles[variant]}
                     ${paddingStyles[padding]}
-                    rounded-2xl
-                    ${hover ? 'transition-all duration-200 hover:bg-white/[0.06] hover:border-white/20' : ''}
+                    rounded-xl
+                    ${ticks ? 'tick-corners' : ''}
+                    ${hover ? 'transition-all duration-200 hover:bg-white/[0.06] hover:border-white/20 hover:-translate-y-0.5' : ''}
                     ${className}
                 `}
                 {...props}

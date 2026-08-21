@@ -1,5 +1,28 @@
 # Progress
 
+## 2026-08-16 - Day 6: Documentation & polish (DONE)
+
+- Rewrote API.md to document the REAL backend routes (it had drifted: claimed
+  gpt-4 reports, PDF export, composite scores, Postgres/pgvector). Now covers
+  /auth/*, /cases/* (photo/embedding, photo/upload, CRUD), /search/*
+  (embedding, case, photo incl. quality_warning), /reports/{case_id}, /health,
+  static mounts, error table, and interactive docs URLs. Base URL updated to
+  http://127.0.0.1:8000 with a note on the frontend /api Vite rewrite.
+- Rewrote for_user.md (plain-language guide): reflect that the core loop is
+  BUILT (auth, upload, search, cases, reports), real cross-age results
+  (R10 89.5%), SQLite/vectorized cosine (not Postgres/pgvector), how to run it
+  today, and an accurate roadmap (age progression first).
+- README structure line now lists API.md + for_user.md among docs.
+- Fixed stale JWT claims in Rules.md + Memory.md: tokens expire after 60 min
+  (ACCESS_TOKEN_EXPIRE_MINUTES, default 60 — not "8 hours") and are stored in
+  localStorage as a Bearer header (not an httpOnly cookie). Verified against
+  backend/config.py + frontend/src/services/api.ts + AuthContext.tsx.
+- TODO.md Day 6 items all checked (README, API docs, perf, UI polish) plus a
+  for_user.md note. NOTE: this file appears to have been updated to checked
+  state during this pass without a matching edit — content is correct.
+- Verified: no stray `backend/pehchaanai.db` (only repo-root `pehchaanai.db`,
+  7.7 MB, is present). Core system (days 1-5) still green per prior runs.
+
 ## 2026-08-16 - README rewrite + perf verification (DONE)
 
 - Rewrote README.md: accurate stack/structure/quickstart (SQLite, relative /api

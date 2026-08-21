@@ -76,8 +76,8 @@ interface AppState {
 
 **Lifecycle:**
 - Issued on login
-- Expires after 8 hours
-- Stored in httpOnly cookie
+- Expires after 60 minutes (configurable via `ACCESS_TOKEN_EXPIRE_MINUTES`)
+- Stored by the client and sent as an Authorization: Bearer header
 
 ---
 

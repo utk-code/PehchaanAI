@@ -9,7 +9,8 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
     ({ className = '', variant = 'primary', size = 'md', loading = false, disabled, children, ...props }, ref) => {
         const baseStyles = `
-            inline-flex items-center justify-center font-medium rounded-xl
+            relative overflow-hidden inline-flex items-center justify-center font-medium rounded-lg
+            tracking-wide
             transition-all duration-200
             focus:outline-none focus:ring-2 focus:ring-offset-0
             disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none
@@ -22,6 +23,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
                 text-white
                 hover:shadow-glow-brand hover:-translate-y-0.5
                 focus:ring-brand-500/50
+                group/btn
             `,
             secondary: `
                 bg-white/5
@@ -33,7 +35,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
             danger: `
                 bg-gradient-to-r from-rose-500 to-pink-600
                 text-white
-                hover:-translate-y-0.5
+                hover:-translate-y-0.5 hover:shadow-[0_0_22px_rgba(242,61,92,0.35)]
                 focus:ring-rose-500/50
             `,
             ghost: `
@@ -57,6 +59,12 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
                 disabled={disabled || loading}
                 {...props}
             >
+                {variant === 'primary' && !loading && (
+                    <span
+                        aria-hidden
+                        className="pointer-events-none absolute inset-y-0 -left-1/3 w-1/3 bg-gradient-to-r from-transparent via-white/40 to-transparent skew-x-[-20deg] group-hover/btn:animate-[btn-flash_0.7s_ease]"
+                    />
+                )}
                 {loading && (
                     <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24">
                         <circle

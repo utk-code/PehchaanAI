@@ -43,7 +43,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
                         aria-describedby={error ? `${inputId}-error` : helperText ? `${inputId}-helper` : undefined}
                         {...props}
                     />
-                    <div className="absolute inset-0 rounded-xl opacity-0 group-focus-within:opacity-100 transition-opacity duration-300 pointer-events-none bg-gradient-to-r from-brand-500/10 via-transparent to-cyan-400/10" />
+                    <div className="absolute inset-0 rounded-xl opacity-0 group-focus-within:opacity-100 transition-opacity duration-300 pointer-events-none bg-gradient-to-r from-brand-500/[0.12] via-transparent to-cyan-400/[0.08]" />
                 </div>
                 {error && (
                     <p id={`${inputId}-error`} className="mt-2 text-sm text-rose-400 flex items-center gap-1.5" role="alert">

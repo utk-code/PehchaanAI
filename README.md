@@ -57,7 +57,7 @@ PehchaanAI/
 │   └── smoke_search.py        # Live end-to-end model + search smoke test
 ├── tests/             # pytest suite (unit + API + integration)
 ├── pehchaanai.db      # SQLite database (gitignored)
-└── docs: TODO.md, PROGRESS.md, copilot_work.md, Architecture.md
+└── docs: TODO.md, PROGRESS.md, API.md, for_user.md, Architecture.md
 ```
 
 ---
