@@ -157,6 +157,8 @@ async def upload_photo(
             notes=notes,
             photo_path=str(file_path),
             face_embedding=result["embedding"],
+            estimated_age=result.get("estimated_age"),
+            estimated_gender=result.get("estimated_gender"),
             status="active",
         )
         db.add(case)

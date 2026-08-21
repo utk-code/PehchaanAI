@@ -28,4 +28,6 @@ FGNET/
 uploads/
 test_images/
 backend.pid
-$null
+
+# External repos (cloned for prototyping, not part of codebase)
+external/

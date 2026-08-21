@@ -4,8 +4,9 @@ A research prototype evaluating whether face recognition can retrieve the same
 person across significant age gaps — motivated by missing-child identification
 scenarios.
 
-**Status:** Implementation (days 1-5 complete) — case flow, corpus ingestion,
+**Status:** Core system complete (days 1-5) — case flow, corpus ingestion,
 cross-age evaluation, real reports, and quality-warning search all working.
+Age progression uses **weighted filter-based search** (see below).
 
 ---
 
@@ -112,6 +113,25 @@ python scripts/ingest_dataset.py --images-root FGNET/images --dataset FGNET
 The checked-in `pehchaanai.db` is gitignored; a freshly ingested corpus
 contains ~609 usable FG-NET records across 82 persons (ages 0-69).
 
+### 4. Age Progression
+
+The system supports **cross-age matching** using weighted filter-based search:
+
+1. **Upload a photo** on the Search page.
+2. **Select a target age group** (Child, Teen, Adult, Senior, or Custom Age).
+3. **Search** — the system filters corpus records by age ranges and ranks
+   results using weighted similarity scores.
+
+**How it works:**
+- Each age range carries a relevance weight (0.6–1.0).
+- Results are combined and sorted by `similarity × weight`.
+- Higher weight = closer to target age = higher priority in results.
+
+**Limitations:**
+- No visual age progression (transforming faces to look older/younger).
+- Filter-based approach is less precise than model-based age progression.
+- See `LIMITATIONS.md` for details on why visual models were not used.
+
 ---
 
 ## Testing
@@ -199,6 +219,10 @@ Search responses include `total_records`, ranked `results`, and an optional
   low-confidence are rejected with a 400 so a bad embedding never becomes a
   permanent case query. `/search/photo` is lenient — it returns results with a
   `quality_warning` instead.
-- **Age progression is NOT implemented yet** (assessed; Fast-AgingGAN is the
-  recommended first integration). Reports are rule-based, not LLM-generated.
+- **Age progression uses weighted filter-based search**: When a target age group
+  is selected, the system filters corpus records by age ranges and ranks
+  results using weighted similarity scores. See the "Dataset ingestion" section
+  above for details. Visual age progression (generating aged faces) is not
+  implemented — see `LIMITATIONS.md`.
+- Reports are rule-based, not LLM-generated.
 - Interactive API docs are available at `http://localhost:8000/docs`.

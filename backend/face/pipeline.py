@@ -124,11 +124,13 @@ class FacePipeline:
         return {
             "embedding": embedding.tolist(),
             "aligned_face": aligned,
-            "bbox": [float(v) for v in face.bbox[:4]],
+            "bbox": face.bbox.tolist(),
             "det_score": float(face.det_score),
             "num_faces": len(faces),
-            "quality_pass": quality_warning is None,
-            "quality_warning": quality_warning,
+            "quality_pass": not problems,
+            "quality_warnings": problems,
+            "estimated_age": face.age,
+            "estimated_gender": face.sex,
         }
 
     @staticmethod

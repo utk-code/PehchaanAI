@@ -102,6 +102,8 @@ async def search_by_photo(
     file: UploadFile = File(...),
     top_k: int = 20,
     min_similarity: float = 0.3,
+    use_age_progression: bool = False,
+    estimated_age: int = None,
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
     pipeline: FacePipeline = Depends(get_soft_face_pipeline),
@@ -137,11 +139,47 @@ async def search_by_photo(
             detail=f"Face processing failed: {e}",
         ) from e
 
-    response = search_face_records(
-        db,
-        query_embedding=result["embedding"],
-        top_k=top_k,
-        min_similarity=min_similarity,
-    )
+    # Use estimated age from photo if available and not provided
+    if estimated_age is None and result.get("estimated_age") is not None:
+        estimated_age = result.get("estimated_age")
+
+    # Use age progression if enabled
+    if use_age_progression and estimated_age is not None:
+        from backend.age.service import AgeProgressionService
+        age_service = AgeProgressionService()
+        age_results = age_service.search_with_age_progression(
+            db, 
+            result["embedding"], 
+            current_age=estimated_age,
+            top_k=top_k,
+            min_similarity=min_similarity
+        )
+        # Merge results from all age ranges
+        all_results = []
+        for range_name, range_response in age_results.items():
+            all_results.extend(range_response.results)
+        
+        # Remove duplicates and sort by similarity
+        unique_results = {}
+        for r in all_results:
+            if r.record_id not in unique_results or r.similarity > unique_results[r.record_id].similarity:
+                unique_results[r.record_id] = r
+        
+        # Sort by similarity and take top_k
+        merged_results = sorted(unique_results.values(), key=lambda x: x.similarity, reverse=True)[:top_k]
+        
+        response = SearchResponse(
+            query_id=None,
+            total_records=len(unique_results),
+            results=merged_results
+        )
+    else:
+        response = search_face_records(
+            db,
+            query_embedding=result["embedding"],
+            top_k=top_k,
+            min_similarity=min_similarity,
+        )
+    
     response.quality_warning = result.get("quality_warning")
     return _rewrite_photo_urls(response, request)

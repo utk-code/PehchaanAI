@@ -59,6 +59,8 @@ class Case(Base):
     photo_path: Mapped[str] = mapped_column(String(500), nullable=False)
     face_embedding: Mapped[list[float]] = mapped_column(JSON, nullable=False)
     status: Mapped[str] = mapped_column(String(20), default="active", nullable=False)
+    estimated_age: Mapped[Optional[int]] = mapped_column(nullable=True)
+    estimated_gender: Mapped[Optional[str]] = mapped_column(String(10), nullable=True)
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), default=utc_now
     )
@@ -91,6 +93,9 @@ class FaceRecord(Base):
     metadata_json: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
     photo_path: Mapped[str] = mapped_column(String(500), nullable=False)
     face_embedding: Mapped[list[float]] = mapped_column(JSON, nullable=False)
+    estimated_age: Mapped[Optional[int]] = mapped_column(nullable=True)
+    estimated_gender: Mapped[Optional[str]] = mapped_column(String(10), nullable=True)
+    face_quality: Mapped[Optional[float]] = mapped_column(nullable=True)
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), default=utc_now
     )

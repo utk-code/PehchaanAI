@@ -13,6 +13,7 @@ from backend.database.models import Base
 from backend.database.session import engine
 from backend.search.routes import router as search_router
 from backend.reports.routes import router as reports_router
+from backend.age.routes import router as age_router
 
 settings = get_settings()
 
@@ -42,6 +43,7 @@ app.include_router(auth_router)
 app.include_router(cases_router)
 app.include_router(search_router)
 app.include_router(reports_router)
+app.include_router(age_router)
 
 # Static image serving:
 #   /uploads     -> uploaded case query photos

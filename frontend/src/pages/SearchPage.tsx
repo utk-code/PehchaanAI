@@ -40,6 +40,8 @@ export function SearchPage() {
     const [previewUrl, setPreviewUrl] = useState<string | null>(null);
     const [topK, setTopK] = useState(20);
     const [minSimilarity, setMinSimilarity] = useState(0.3);
+    const [targetAgeGroup, setTargetAgeGroup] = useState<string | null>(null);
+    const [estimatedAge, setEstimatedAge] = useState<number | null>(null);
     const reducedMotion = useReducedMotion();
 
     const searchMutation = useSearchByPhoto();
@@ -54,11 +56,30 @@ export function SearchPage() {
 
     const handleSearch = useCallback(async () => {
         if (!file) return;
+
+        const ageGroupMap: Record<string, number> = {
+            child: 5,
+            teen: 16,
+            adult: 35,
+            senior: 65,
+        };
+
+        const targetAge = targetAgeGroup === 'custom'
+            ? estimatedAge
+            : targetAgeGroup
+                ? ageGroupMap[targetAgeGroup]
+                : null;
+
         await searchMutation.mutate({
             file,
-            params: { top_k: topK, min_similarity: minSimilarity },
+            params: {
+                top_k: topK,
+                min_similarity: minSimilarity,
+                use_age_progression: targetAgeGroup !== null,
+                estimated_age: targetAge || undefined,
+            },
         });
-    }, [file, topK, minSimilarity, searchMutation]);
+    }, [file, topK, minSimilarity, searchMutation, targetAgeGroup, estimatedAge]);
 
     const results = searchMutation.data?.results || [];
 
@@ -140,25 +161,56 @@ export function SearchPage() {
                                 </div>
                             </div>
 
-                            <div>
-                                <label htmlFor="minSimilarity" className="block text-sm font-medium text-white/70 mb-2">
-                                    Minimum Similarity: <span className="text-brand-400">{(minSimilarity * 100).toFixed(0)}%</span>
-                                </label>
-                                <input
-                                    id="minSimilarity"
-                                    type="range"
-                                    min={0}
-                                    max={100}
-                                    step={5}
-                                    value={minSimilarity * 100}
-                                    onChange={(e) => setMinSimilarity(Number(e.target.value) / 100)}
-                                    className="w-full"
-                                />
-                                <div className="flex justify-between text-xs text-white/40 mt-1.5">
-                                    <span>0%</span>
-                                    <span>100%</span>
-                                </div>
-                            </div>
+                             <div>
+                                 <label htmlFor="minSimilarity" className="block text-sm font-medium text-white/70 mb-2">
+                                     Minimum Similarity: <span className="text-brand-400">{(minSimilarity * 100).toFixed(0)}%</span>
+                                 </label>
+                                 <input
+                                     id="minSimilarity"
+                                     type="range"
+                                     min={0}
+                                     max={100}
+                                     step={5}
+                                     value={minSimilarity * 100}
+                                     onChange={(e) => setMinSimilarity(Number(e.target.value) / 100)}
+                                     className="w-full"
+                                 />
+                                 <div className="flex justify-between text-xs text-white/40 mt-1.5">
+                                     <span>0%</span>
+                                     <span>100%</span>
+                                 </div>
+                             </div>
+                              <div className="space-y-2">
+                                  <label htmlFor="targetAgeGroup" className="text-sm font-medium text-white/70">
+                                      Target Age Group
+                                  </label>
+                                  <select
+                                      id="targetAgeGroup"
+                                      value={targetAgeGroup || ''}
+                                      onChange={(e) => setTargetAgeGroup(e.target.value || null)}
+                                      className="w-full px-3 py-2 rounded-lg bg-white/5 border border-white/10 text-white text-sm"
+                                  >
+                                      <option value="">-- Select --</option>
+                                      <option value="child">Child (0-12)</option>
+                                      <option value="teen">Teen (13-19)</option>
+                                      <option value="adult">Adult (20-50)</option>
+                                      <option value="senior">Senior (51+)</option>
+                                      <option value="custom">Custom Age</option>
+                                  </select>
+                                  {targetAgeGroup === 'custom' && (
+                                      <div className="flex items-center gap-2 mt-2">
+                                          <input
+                                              type="number"
+                                              min="0"
+                                              max="120"
+                                              value={estimatedAge || ''}
+                                              onChange={(e) => setEstimatedAge(e.target.value ? Number(e.target.value) : null)}
+                                              className="w-20 px-2 py-1 rounded-lg bg-white/5 border border-white/10 text-white text-sm"
+                                              placeholder="Age"
+                                          />
+                                      </div>
+                                  )}
+                              </div>
                         </div>
 
                         <button

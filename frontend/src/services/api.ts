@@ -191,11 +191,13 @@ export const searchApi = {
             `/search/case/${caseId}${q.toString() ? `?${q}` : ''}`
         );
     },
-    searchByPhoto: (file: File, params?: { top_k?: number; min_similarity?: number }) => {
+    searchByPhoto: (file: File, params?: { top_k?: number; min_similarity?: number; use_age_progression?: boolean; estimated_age?: number }) => {
         const formData = new FormData();
         formData.append('file', file);
         if (params?.top_k) formData.append('top_k', String(params.top_k));
         if (params?.min_similarity) formData.append('min_similarity', String(params.min_similarity));
+        if (params?.use_age_progression !== undefined) formData.append('use_age_progression', String(params.use_age_progression));
+        if (params?.estimated_age !== undefined) formData.append('estimated_age', String(params.estimated_age));
         return request<SearchResponse>('/search/photo', {
             method: 'POST',
             headers: {},

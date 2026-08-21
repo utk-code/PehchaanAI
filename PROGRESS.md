@@ -1,5 +1,29 @@
 # Progress
 
+## 2026-08-21 - Age Progression: Filter-Based with Weighted Ranges (DONE)
+
+- Implemented weighted age-range filtering in `backend/age/service.py`:
+  - Each age range now carries a relevance weight (0.6–1.0).
+  - Combined ranking sorts results by `similarity * weight` across all ranges.
+  - Returns top-k combined results instead of separate per-range buckets.
+- Frontend (`SearchPage.tsx`) updated:
+  - Replaced "Age Progression" checkbox with a **target age group** dropdown:
+    Child (0-12), Teen (13-19), Adult (20-50), Senior (51+), Custom Age.
+  - "Custom Age" shows a numeric input for exact age.
+  - `useSearch` hook updated to pass `use_age_progression` and `estimated_age` params.
+- Created `LIMITATIONS.md` documenting:
+  - Why visual age progression (age-cGAN, SAM, InsightFace `age_transform`) was abandoned.
+  - Filter-based approach rationale (zero budget, low-end laptop, no viable models).
+  - Future work if lightweight models become available.
+- Cleanup: removed temporary test scripts and placeholder images.
+  - FGNET retained — it serves as the reference corpus, not junk.
+- Verified: frontend builds clean (`tsc` + `vite build` pass).
+
+### Decision Log
+- InsightFace `age_transform` does **not exist** in the installed package or GitHub repo.
+- Pre-trained age-progression repos (CAAE, SAM) are either outdated (Python 2.7 / TF 1.7) or lack weights.
+- Filter-based with weights is the only feasible zero-budget approach.
+
 ## 2026-08-16 - Day 6: Documentation & polish (DONE)
 
 - Rewrote API.md to document the REAL backend routes (it had drifted: claimed

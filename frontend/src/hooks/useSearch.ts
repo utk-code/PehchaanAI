@@ -20,7 +20,7 @@ export function useSearchByCase(caseId: string, params?: { top_k?: number; min_s
 
 export function useSearchByPhoto() {
     return useMutation({
-        mutationFn: ({ file, params }: { file: File; params?: { top_k?: number; min_similarity?: number } }) =>
+        mutationFn: ({ file, params }: { file: File; params?: { top_k?: number; min_similarity?: number; use_age_progression?: boolean; estimated_age?: number } }) =>
             searchApi.searchByPhoto(file, params),
     });
 }

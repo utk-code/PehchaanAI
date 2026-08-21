@@ -16,9 +16,19 @@ from backend.face.pipeline import FacePipeline
 
 class FakeFace:
     def __init__(self, bbox, det_score, embedding=None):
-        self.bbox = bbox
+        import numpy as np
+        self.bbox = np.array(bbox, dtype=np.float32)
         self.det_score = det_score
         self.embedding = embedding
+        self.age = 25
+        self.sex = "F"
+        
+    def get(self, key, default=None):
+        if key == "age":
+            return self.age
+        elif key == "sex":
+            return self.sex
+        return default
 
 
 class FakeDetector:
@@ -114,8 +124,10 @@ def test_process_bytes_full_flow() -> None:
     result = pipeline.process_bytes(buf.tobytes())
 
     assert pipeline._detector.detect_calls == 1
-    assert result["embedding"] == pytest.approx(expected.tolist())
+    assert np.array(result["embedding"]) == pytest.approx(expected)
     assert result["num_faces"] == 1
+    assert "estimated_age" in result
+    assert "estimated_gender" in result
 
 
 # --------------------------------------------------------------------------- #
@@ -139,7 +151,9 @@ def test_process_image_non_strict_warns_on_undersized_face() -> None:
     )
     result = pipeline.process_image(fake_image())
     assert result["quality_pass"] is False
-    assert "too small" in result["quality_warning"]
+    assert "too small" in result["quality_warnings"][0]
+    assert "estimated_age" in result
+    assert "estimated_gender" in result
     assert len(result["embedding"]) == 512
 
 
@@ -149,7 +163,9 @@ def test_process_image_non_strict_warns_on_low_confidence() -> None:
     )
     result = pipeline.process_image(fake_image())
     assert result["quality_pass"] is False
-    assert "below threshold" in result["quality_warning"]
+    assert "below threshold" in result["quality_warnings"][0]
+    assert "estimated_age" in result
+    assert "estimated_gender" in result
 
 
 def test_process_image_non_strict_combines_warnings() -> None:
@@ -157,8 +173,10 @@ def test_process_image_non_strict_combines_warnings() -> None:
         FakeFace(bbox=[0, 0, 10, 10], det_score=0.3), strict_quality=False
     )
     result = pipeline.process_image(fake_image())
-    assert "too small" in result["quality_warning"]
-    assert "below threshold" in result["quality_warning"]
+    assert "too small" in result["quality_warnings"][0]
+    assert "below threshold" in result["quality_warnings"][1]
+    assert "estimated_age" in result
+    assert "estimated_gender" in result
 
 
 def test_get_soft_face_pipeline_is_non_strict() -> None:
